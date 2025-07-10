@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: capstone
+  datasource:
+    url: jdbc:mysql://localhost:3306/capstone_db
+    username: root
+    password: 1234
+
+server:
+  port: 8080
+
