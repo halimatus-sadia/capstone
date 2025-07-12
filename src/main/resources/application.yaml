@@ -1,11 +1,30 @@
 spring:
   application:
     name: capstone
+
   datasource:
     url: jdbc:mysql://localhost:3306/capstone_db
     username: root
-    password: 1234
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1500MB
+
 
 server:
   port: 8080
 
+minio:
+  url: http://localhost:9000
+  bucket:
+    name: capstone
+  access:
+    key: minioadmin
+  secret:
+    key: minioadmin
