@@ -1,7 +1,7 @@
 package com.example.capstone.auth;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class AuthController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
