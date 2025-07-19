@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Pet Listings</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Available Pet Listings</h2>
+
+    <div class="row" th:if="${pets != null && !pets.isEmpty()}">
+        <div class="col-md-4 mb-4" th:each="pet : ${pets}">
+            <div class="card h-100 shadow-sm">
+                <!-- Optional image section -->
+                <!-- <img th:src="@{/images/default_pet.jpg}" class="card-img-top" alt="Pet Image"> -->
+
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${pet.name}">Pet Name</h5>
+                    <p class="card-text mb-1">
+                        <strong>Breed:</strong> <span th:text="${pet.breed}">Breed</span><br/>
+                        <strong>Status:</strong> <span th:text="${pet.status}">FOR_ADOPTION</span><br/>
+                        <strong>Location:</strong> <span th:text="${pet.location}">City</span><br/>
+                        <strong>Price:</strong>
+<!--                        <span th:text="${pet.price != null ? '₹' + pet.price : 'Free'}"></span>-->
+                    </p>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <a th:href="@{'/pets/' + ${pet.id}}" class="btn btn-outline-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" th:if="${pets == null || pets.isEmpty()}">
+        <p class="text-muted">No pet listings available at the moment.</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
