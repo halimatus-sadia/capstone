@@ -16,6 +16,8 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1500MB
 
+  thymeleaf:
+    cache: false
 
 server:
   port: 8080
