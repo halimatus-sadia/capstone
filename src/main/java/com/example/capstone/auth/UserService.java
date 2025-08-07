@@ -1,6 +1,6 @@
 package com.example.capstone.auth;
 
-import com.example.capstone.utils.MinIOService;
+import com.example.capstone.common.MinIOService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

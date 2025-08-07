@@ -1,4 +1,4 @@
-package com.example.capstone.utils;
+package com.example.capstone.common;
 
 import io.minio.*;
 import io.minio.errors.MinioException;
