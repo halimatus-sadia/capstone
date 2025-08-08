@@ -4,49 +4,31 @@ import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PetService {
+    private final PetMapper petMapper;
     private final PetRepository petRepository;
-    private final AuthUtils authUtils;
 
     public List<Pet> getFilteredPets(String species, String breed, PetStatus status, String location) {
         Specification<Pet> spec = PetSpecification.filterPets(species, breed, status, location);
         return petRepository.findAll(spec);
     }
 
-    public Pet getById(Long id) {
-        return petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet not found"));
+    public PetResponseDto getById(Long id) {
+        return petRepository.findById(id).map(petMapper::toDto).orElseThrow(() -> new RuntimeException("Pet not found"));
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void createPetListing(PetRequestDto dto) {
-        Pet pet = new Pet();
-        pet.setName(dto.getName());
-        pet.setSpecies(dto.getSpecies());
-        pet.setBreed(dto.getBreed());
-        pet.setAge(dto.getAge());
-        pet.setVaccinated(dto.getVaccinated());
-        pet.setDescription(dto.getDescription());
-        pet.setPrice(dto.getPrice());
-        pet.setLocation(dto.getLocation());
-        pet.setStatus(dto.getStatus());
-        pet.setOwner(authUtils.getLoggedInUser());
-
-        petRepository.save(pet);
+        petRepository.save(petMapper.toEntity(dto));
     }
 
     public List<PetResponseDto> getMyPetListings() {
-        return petRepository.findAll().stream().map(p -> {
-            PetResponseDto dto = new PetResponseDto();
-            dto.setId(p.getId());
-            dto.setName(p.getName());
-            dto.setBreed(p.getBreed());
-            dto.setStatus(p.getStatus().name());
-            dto.setLocation(p.getLocation());
-            return dto;
-        }).toList();
+        return petRepository.findAll().stream().map(petMapper::toDto).toList();
     }
 }

@@ -1,83 +1,141 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Create Pet Listing</title>
     <meta charset="UTF-8">
+    <title>Create Pet Listing</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap 5 CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/create_pet.css}" rel="stylesheet">
+    <script defer th:src="@{/js/create_pet.js}"></script>
 </head>
-<body class="bg-light">
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Create a Pet Listing</h4>
-                </div>
-                <div class="card-body">
-                    <form th:action="@{/pets}" th:object="${pet}" method="post">
+<main>
+    <section class="hero">
+        <div class="container">
+            <h1>Create a Pet Listing</h1>
+            <p class="muted">Share a bit about your pet—keep it honest and helpful for adopters or buyers.</p>
+        </div>
+    </section>
 
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <input type="text" th:field="*{name}" class="form-control" required />
-                        </div>
+    <section class="container">
+        <form class="card form" th:action="@{/pets}" th:object="${pet}" method="post" novalidate>
+            <!-- Top split -->
+            <div class="form-grid">
+                <!-- LEFT: Core info -->
+                <div class="stack">
+                    <h2 class="form-section">Basic info</h2>
 
-                        <div class="mb-3">
-                            <label class="form-label">Species</label>
-                            <input type="text" th:field="*{species}" class="form-control" required />
-                        </div>
+                    <label class="field" for="name">
+                        <span>Name <em class="req">*</em></span>
+                        <input id="name" type="text" th:field="*{name}" placeholder="e.g., Snowy" required>
+                        <small class="err" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name error</small>
+                    </label>
 
-                        <div class="mb-3">
-                            <label class="form-label">Breed</label>
-                            <input type="text" th:field="*{breed}" class="form-control" />
-                        </div>
+                    <div class="grid-2">
+                        <label class="field" for="species">
+                            <span>Species <em class="req">*</em></span>
+                            <input id="species" type="text" th:field="*{species}" placeholder="Cat, Dog…" required>
+                            <small class="err" th:if="${#fields.hasErrors('species')}" th:errors="*{species}">Species
+                                error</small>
+                        </label>
 
-                        <div class="mb-3">
-                            <label class="form-label">Age</label>
-                            <input type="number" th:field="*{age}" class="form-control" min="0" />
-                        </div>
+                        <label class="field" for="breed">
+                            <span>Breed</span>
+                            <input id="breed" type="text" th:field="*{breed}" placeholder="Persian, Husky…">
+                            <small class="err" th:if="${#fields.hasErrors('breed')}" th:errors="*{breed}">Breed
+                                error</small>
+                        </label>
+                    </div>
 
-                        <div class="form-check mb-3">
-                            <input type="checkbox" th:field="*{vaccinated}" class="form-check-input" id="vaccinatedCheck" />
-                            <label class="form-check-label" for="vaccinatedCheck">Vaccinated</label>
-                        </div>
+                    <div class="grid-3">
+                        <label class="field" for="age">
+                            <span>Age (years)</span>
+                            <input id="age" type="number" min="0" th:field="*{age}" placeholder="e.g., 2">
+                            <small class="err" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Age error</small>
+                        </label>
 
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea th:field="*{description}" class="form-control" rows="3"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Price (optional)</label>
-                            <input type="number" th:field="*{price}" class="form-control" step="0.01" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" th:field="*{location}" class="form-control" required />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Status</label>
-                            <select th:field="*{status}" class="form-select">
-                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                        <label class="field" for="status">
+                            <span>Status <em class="req">*</em></span>
+                            <select id="status" th:field="*{status}" required>
+                                <option value="" disabled th:selected="${pet.status} == null">Select status</option>
+                                <option th:each="s : ${statuses}" th:value="${s}"
+                                        th:text="${#strings.replace(s.name(),'_',' ')}"></option>
                             </select>
-                        </div>
+                            <small class="err" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Status
+                                error</small>
+                        </label>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">Create Listing</button>
-                        </div>
+                        <label class="field" for="location">
+                            <span>Location <em class="req">*</em></span>
+                            <input id="location" type="text" th:field="*{location}" placeholder="City, Area" required>
+                            <small class="err" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Location
+                                error</small>
+                        </label>
+                    </div>
 
-                    </form>
+                    <div class="grid-2 align-end">
+                        <!--<label class="switch" >
+                            <input type="checkbox" th:field="*{vaccinated}">
+                            <span class="slider" aria-hidden="true"></span>
+                            <span class="switch-label">Vaccinated</span>
+                        </label>-->
+                        <label class="switch">
+                            <!--                            <input type="checkbox" th:field="*{vaccinated}">-->
+                            <input type="checkbox" name="vaccinated" id="vaccinatedCheckbox"
+                                   th:checked="${pet.vaccinated}"/>
+                            <span class="slider"></span>
+                            <span class="switch-label">Vaccinated</span>
+                        </label>
+
+                        <label class="field" id="priceField">
+                            <span>Price (optional)</span>
+                            <input type="number" step="0.01" min="0" th:field="*{price}" placeholder="e.g., 1500">
+                            <small class="hint muted">Hidden for “For adoption” (optional)</small>
+                            <small class="err" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">Price
+                                error</small>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Media + description -->
+                <div class="stack">
+                    <h2 class="form-section">Photos & description</h2>
+
+                    <!-- Placeholder for image upload – wire later -->
+                    <div class="dropzone" aria-label="Image upload area (coming soon)">
+                        <div class="img-skeleton tall"></div>
+                        <p class="muted">Add photos later • Drag & drop coming soon</p>
+                    </div>
+
+                    <label class="field" for="description">
+                        <span>Description</span>
+                        <textarea id="description" th:field="*{description}" rows="6"
+                                  placeholder="Temperament, health, behavior, quirks..."></textarea>
+                        <div class="muted tiny" id="desc-count">0 / 500</div>
+                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description
+                            error</small>
+                    </label>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Bootstrap JS (optional but good for interactivity) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- Actions -->
+            <div class="form-actions">
+                <a class="btn btn-soft" th:href="@{/pets}">Cancel</a>
+                <button class="btn btn-primary" type="submit">Create listing</button>
+            </div>
+        </form>
+
+        <div class="spacer-24"></div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p class="muted">© <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}">2025</span> PetPort</p>
+    </div>
+</footer>
 </body>
 </html>

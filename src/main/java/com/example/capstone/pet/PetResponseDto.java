@@ -1,14 +1,23 @@
 package com.example.capstone.pet;
 
-import lombok.Data;
+import com.example.capstone.auth.UserResponse;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
+import java.time.LocalDateTime;
+
+@Builder
+@Getter
 public class PetResponseDto {
-    private Long id;
     private String name;
+    private String species;
     private String breed;
-    private String status;
-    private String location;
+    private Integer age;
+    private Boolean vaccinated;
+    private String description;
     private Double price;
-    // constructor or builder
+    private String location;
+    private PetStatus status;
+    private LocalDateTime createdAt;
+    private UserResponse owner;
 }
