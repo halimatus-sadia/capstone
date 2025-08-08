@@ -1,5 +1,6 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.utils.AuthUtils;
 import com.example.capstone.utils.NullHandlerUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import java.util.Locale;
 public class PetService {
     private final PetMapper petMapper;
     private final PetRepository petRepository;
+    private final AuthUtils authUtils;
 
     public Page<PetResponseDto> getFilteredPets(
             String species,
@@ -46,7 +48,7 @@ public class PetService {
     }
 
     public List<PetResponseDto> getMyPetListings() {
-        return petRepository.findAll().stream().map(petMapper::toDto).toList();
+        return petRepository.findAllByOwnerId(authUtils.getLoggedInUser().getId()).stream().map(petMapper::toDto).toList();
     }
 
     private Sort mapSort(String sort) {

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificationExecutor<Pet> {
 
@@ -24,4 +26,6 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
             @Param("status") PetStatus status,
             @Param("location") String location,
             Pageable pageable);
+
+    List<Pet> findAllByOwnerId(Long ownerId);
 }
