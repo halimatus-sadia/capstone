@@ -6,8 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.JpaSort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +28,10 @@ public class PetService {
             String sort /*e.g. NEWEST, PRICE_ASC, PRICE_DESC, AGE_ASC, AGE_DESC, NAME_ASC, NAME_DESC*/) {
         Pageable pageable = PageRequest.of(page, size, mapSort(sort));
         return petRepository.findAllPets(
-                        NullHandlerUtils.textOrNull(species),
-                        NullHandlerUtils.textOrNull(breed),
+                        NullHandlerUtils.nullIfBlank(species),
+                        NullHandlerUtils.nullIfBlank(breed),
                         status,
-                        NullHandlerUtils.textOrNull(location),
+                        NullHandlerUtils.nullIfBlank(location),
                         pageable)
                 .map(petMapper::toDto);
     }
