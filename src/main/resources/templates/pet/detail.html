@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pet.name} + ' | Pet Details'">Pet Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="container detail">
+    <div class="detail-media">
+        <!-- Replace with real image(s) when available -->
+        <div class="img-skeleton tall"></div>
+        <div class="thumbs">
+            <div class="img-skeleton"></div>
+            <div class="img-skeleton"></div>
+            <div class="img-skeleton"></div>
+        </div>
+    </div>
+
+    <article class="detail-body">
+        <div class="detail-head">
+            <h1 th:text="${pet.name}">Mittens</h1>
+            <span class="badge badge-status" th:classappend="' status-' + ${pet.status}"
+                  th:text="${#strings.replace(pet.status.name(),'_',' ')}">FOR ADOPTION</span>
+        </div>
+
+        <p class="muted" th:text="${#temporals.format(pet.createdAt,'d MMM yyyy')}">8 Aug 2025</p>
+
+        <div class="info-grid">
+            <div class="info">
+                <span class="label">Species</span>
+                <span th:text="${pet.species}">Cat</span>
+            </div>
+            <div class="info">
+                <span class="label">Breed</span>
+                <span th:text="${pet.breed}">Persian</span>
+            </div>
+            <div class="info">
+                <span class="label">Age</span>
+                <span th:text="${pet.age} != null ? ${pet.age} + ' years' : '—'">2 years</span>
+            </div>
+            <div class="info">
+                <span class="label">Vaccinated</span>
+                <span class="chip" th:classappend="${pet.vaccinated} ? ' chip-ok' : ' chip-warn'"
+                      th:text="${pet.vaccinated} ? 'Yes' : 'No'">Yes</span>
+            </div>
+            <div class="info">
+                <span class="label">Location</span>
+                <span th:text="${pet.location}">Dhaka</span>
+            </div>
+            <div class="info">
+                <span class="label">Price</span>
+                <span th:text="${pet.price != null} ? ${#numbers.formatDecimal(pet.price,1,'COMMA',2,'POINT')} + ' ৳' : '—'">—</span>
+            </div>
+        </div>
+
+        <section class="desc">
+            <h2>About</h2>
+            <p th:text="${pet.description != null ? pet.description : 'No description provided.'}">
+                Friendly, curious, and loves naps in the afternoon sun.
+            </p>
+        </section>
+
+        <div class="cta-row">
+            <a class="btn btn-primary" href="#contact">Contact owner</a>
+            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
+        </div>
+
+        <!-- Placeholder: if you have owner profile or message flow -->
+        <section id="contact" class="contact-card">
+            <h3>Owner</h3>
+            <p class="muted">For privacy, direct contact/messaging can be enabled later.</p>
+            <button class="btn btn-soft" disabled>Message (coming soon)</button>
+        </section>
+    </article>
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p class="muted">© <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}"></span> PetPort</p>
+    </div>
+</footer>
+</body>
+</html>

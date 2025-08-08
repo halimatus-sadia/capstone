@@ -2,6 +2,7 @@ package com.example.capstone.pet;
 
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,15 @@ import java.util.List;
 public class PetService {
     private final PetRepository petRepository;
     private final AuthUtils authUtils;
+
+    public List<Pet> getFilteredPets(String species, String breed, PetStatus status, String location) {
+        Specification<Pet> spec = PetSpecification.filterPets(species, breed, status, location);
+        return petRepository.findAll(spec);
+    }
+
+    public Pet getById(Long id) {
+        return petRepository.findById(id).orElseThrow(() -> new RuntimeException("Pet not found"));
+    }
 
     public void createPetListing(PetRequestDto dto) {
         Pet pet = new Pet();
