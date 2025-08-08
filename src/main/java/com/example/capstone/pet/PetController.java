@@ -1,8 +1,11 @@
 package com.example.capstone.pet;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +24,15 @@ public class PetController {
     }
 
     @PostMapping
-    public String createPetListing(@ModelAttribute("pet") PetRequestDto dto) {
+    public String createPetListing(
+            @Valid @ModelAttribute("pet") PetRequestDto dto,
+            BindingResult bindingResult,
+            Model model) {
+        model.addAttribute("statuses", PetStatus.values());
+        if (bindingResult.hasErrors()) {
+            // Redisplay the form with errors
+            return "pet/create";
+        }
         petService.createPetListing(dto);
         return "redirect:/pets";
     }

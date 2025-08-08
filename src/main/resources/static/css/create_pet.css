@@ -10,115 +10,87 @@
 /* Section labels inside form */
 .form-section {
     margin: 0 0 10px;
-    font-size: 18px
+    font-size: 18px;
 }
 
 /* Grids for form layout */
 .form-grid {
     display: grid;
     grid-template-columns: 1.1fr .9fr;
-    gap: var(--grid-gap)
+    gap: var(--grid-gap);
 }
 
 @media (max-width: 1000px) {
     .form-grid {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
     }
 }
 
 .grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px
+    gap: 12px;
 }
 
 @media (max-width: 800px) {
     .grid-3 {
-        grid-template-columns: 1fr 1fr
+        grid-template-columns: 1fr 1fr;
     }
 }
 
 .align-end {
-    align-items: end
+    align-items: end;
 }
 
-/* Field + errors */
+/* Field wrapper */
+.field {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Input styling */
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* Error messages */
 .field .err {
     color: var(--danger);
     margin-top: 4px;
-    display: block
+    font-size: 0.85rem;
+    display: block;
+    min-height: 1em; /* Always reserves space to avoid layout shift */
 }
 
+/* Optional: visually separate hint text */
 .field .hint {
     display: block;
-    margin-top: 4px
+    margin-top: 4px;
+    color: #777;
+    font-size: 0.85rem;
 }
 
+/* Required field asterisk */
 .req {
     color: var(--danger);
-    font-style: normal
+    font-style: normal;
 }
-
-.switch {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    user-select: none;
-}
-
-.switch input {
-    position: absolute;
-    inset: 0; /* covers entire label area */
-    opacity: 0; /* invisible, but interactive */
-    z-index: 2; /* <-- KEY: on top of the slider */
-    cursor: pointer;
-    margin: 0;
-}
-
-.switch .slider {
-    position: relative;
-    z-index: 1; /* below the input so clicks reach input */
-    width: 44px;
-    height: 24px;
-    background: #e5e7eb;
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
-    transition: .2s;
-    flex: 0 0 auto;
-}
-
-.switch .slider::after {
-    content: "";
-    position: absolute;
-    top: 1px;
-    left: 1px;
-    width: 20px;
-    height: 20px;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 50%;
-    transition: .2s;
-}
-
-.switch input:checked + .slider {
-    background: var(--primary);
-    border-color: var(--primary-600);
-}
-
-.switch input:checked + .slider::after {
-    transform: translateX(20px);
-    border-color: var(--primary-600);
-}
-
-.switch input:focus-visible + .slider {
-    box-shadow: var(--ring);
-}
-
-.switch-label {
-    color: var(--text);
-}
-
 
 /* Dropzone placeholder */
 .dropzone {
@@ -129,41 +101,98 @@
     text-align: center;
 }
 
-/* Actions */
+/* Description character counter */
+#desc-count {
+    font-size: 0.75rem;
+    text-align: right;
+    color: #777;
+    margin-top: 0.25rem;
+}
+
+/* Form action buttons */
 .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 16px
+    margin-top: 16px;
 }
 
 .tiny {
-    font-size: 12px
+    font-size: 12px;
 }
 
 .spacer-24 {
-    height: 24px
+    height: 24px;
 }
 
-
-/*test*/
+/* Switch toggle styling */
 .switch {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    user-select: none;
 }
 
-.switch input[type="checkbox"] {
+.switch input {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 44px;
-    height: 24px;
+    inset: 0;
     opacity: 0;
-    cursor: pointer;
     z-index: 2;
+    cursor: pointer;
+    margin: 0;
     appearance: none;
     -webkit-appearance: none;
-    margin: 0;
+}
+
+/* Slider track */
+.switch .slider {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 24px;
+    background: #e5e7eb;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    transition: 0.2s;
+    flex: 0 0 auto;
+}
+
+/* Slider knob */
+.switch .slider::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+/* Checked state */
+.switch input:checked + .slider {
+    background: var(--primary);
+    border-color: var(--primary-600);
+}
+
+.switch input:checked + .slider::after {
+    transform: translateX(20px);
+    border-color: var(--primary-600);
+}
+
+/* Focus ring */
+.switch input:focus-visible + .slider {
+    box-shadow: var(--ring);
+}
+
+.switch-label {
+    color: var(--text);
+}
+
+/* Optional: non-breaking space in empty error to preserve alignment */
+.field .err:empty::after {
+    content: "\00a0";
 }
