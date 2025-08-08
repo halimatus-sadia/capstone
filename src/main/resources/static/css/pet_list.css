@@ -1,0 +1,160 @@
+/* pagination + toolbar sugar */
+.toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1rem
+}
+
+.toolbar .right {
+    display: flex;
+    gap: .75rem;
+    align-items: center
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0
+}
+
+.pagination ul {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    list-style: none;
+    padding: 0
+}
+
+.pagination .btn {
+    padding: .5rem .8rem;
+    border-radius: .6rem
+}
+
+.pagination .btn.active {
+    border: 1px solid var(--primary);
+    background: var(--primary-ghost)
+}
+
+.pagination .btn.disabled {
+    pointer-events: none;
+    opacity: .45
+}
+
+.pagination .gap {
+    padding: 0 .4rem;
+    color: var(--muted)
+}
+
+.field.compact {
+    display: flex;
+    gap: .4rem;
+    align-items: center
+}
+
+.field.compact select {
+    padding: .4rem .6rem
+}
+
+.results-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap
+}
+
+.muted {
+    opacity: .8
+}
+
+.badge-status {
+    position: absolute;
+    top: .5rem;
+    left: .5rem
+}
+
+.img-skeleton {
+    background: #f1f1f1;
+    height: 180px;
+    border-radius: .6rem
+}
+
+.cards.empty {
+    min-height: 160px
+}
+
+.chip {
+    display: inline-flex;
+    gap: .35rem;
+    align-items: center;
+    padding: .15rem .45rem;
+    border-radius: 999px;
+    font-size: .85rem
+}
+
+.chip-ok {
+    background: #eaf8f0
+}
+
+.chip-warn {
+    background: #fff2e6
+}
+
+.btn-soft {
+    background: #f7f7f9;
+    border: 1px solid #ededf2
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #e6e6ef
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #ccc
+}
+
+.btn-primary {
+    background: #3b82f6;
+    border: 1px solid #3b82f6;
+    color: #fff
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem .9rem;
+    border-radius: .6rem;
+    text-decoration: none
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns:1fr 1fr;
+    gap: .5rem
+}
+
+.layout {
+    display: grid;
+    grid-template-columns:280px 1fr;
+    gap: 1.5rem
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns:1fr
+    }
+
+    .filters {
+        display: none
+    }
+
+    .filters.open {
+        display: block
+    }
+}

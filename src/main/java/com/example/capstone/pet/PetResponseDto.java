@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class PetResponseDto {
+    private Long id;
     private String name;
     private String species;
     private String breed;
