@@ -1,5 +1,11 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.pet.request.HandlePetRequestDto;
+import com.example.capstone.pet.request.PetRequestReq;
+import com.example.capstone.pet.request.PetRequestRes;
+import com.example.capstone.pet.request.PetRequestStatus;
+import com.example.capstone.utils.AuthUtils;
+import com.example.capstone.utils.PaginationUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -7,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,17 +23,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PetController {
     private final PetService petService;
+    private final AuthUtils authUtils;
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("pet", new PetRequestDto());
+        model.addAttribute("pet", new PetSaveRequest());
         model.addAttribute("statuses", PetStatus.values());
         return "pet/create";
     }
 
     @PostMapping
     public String createPetListing(
-            @Valid @ModelAttribute("pet") PetRequestDto dto,
+            @Valid @ModelAttribute("pet") PetSaveRequest dto,
             BindingResult bindingResult,
             Model model) {
         model.addAttribute("statuses", PetStatus.values());
@@ -72,46 +80,80 @@ public class PetController {
         model.addAttribute("sort", sort);
         model.addAttribute("rangeStart", rangeStart);
         model.addAttribute("rangeEnd", rangeEnd);
-        model.addAttribute("pageNumbers", computePageNumbers(pets));
+        model.addAttribute("pageNumbers", PaginationUtils.computePageNumbers(pets));
 
         return "pet/list";
     }
 
     @GetMapping("/{id}")
     public String viewPet(@PathVariable Long id, Model model) {
-        model.addAttribute("pet", petService.getById(id));
+        PetResponseDto pet = petService.getById(id);
+        boolean isOwner = pet.getOwner().getId().equals(authUtils.getLoggedInUser().getId());
+        boolean hasActiveRequest = false;
+        PetRequestStatus activeReqStatus = null;
+        if (!isOwner) { // Only check active request if not owner
+            activeReqStatus = petService.getActiveRequestStatusForPet(id);
+            hasActiveRequest = (activeReqStatus != null);
+        }
+        model.addAttribute("pet", pet);
+        model.addAttribute("isOwner", isOwner);
+        model.addAttribute("hasActiveRequest", hasActiveRequest);
+        model.addAttribute("activeReqStatus", activeReqStatus);
+
         return "pet/detail";
     }
 
-    // region private-methods
-    // Build a compact pager with ellipses. Returns a List<Object> of Integer and "…" (String).
-    private List<Object> computePageNumbers(Page<?> page) {
-        int total = page.getTotalPages();
-        int current = page.getNumber();
-        int maxButtons = 7;
-
-        List<Object> out = new ArrayList<>();
-        if (total <= 1) return out; // nothing to render
-
-        if (total <= maxButtons) {
-            for (int i = 0; i < total; i++) out.add(i);
-            return out;
-        }
-
-        // Always show first & last, +/-1 around current, with gaps
-        out.add(0);
-
-        int left = Math.max(1, current - 1);
-        int right = Math.min(total - 2, current + 1);
-
-        if (left > 1) out.add("…");
-        for (int i = left; i <= right; i++) out.add(i);
-        if (right < total - 2) out.add("…");
-
-        out.add(total - 1);
-        return out;
+    @PostMapping("/requests")
+    public String submitRequest(
+            @ModelAttribute PetRequestReq dto,
+            RedirectAttributes ra) {
+        petService.createPetRequest(dto);
+        ra.addFlashAttribute("success", "Request submitted successfully.");
+        return "redirect:/pets/" + dto.getPetId();
     }
 
-    // endregion private-methods
+    @GetMapping("/requests")
+    public String listRequests(
+            @RequestParam(value = "status", required = false) PetRequestStatus status,
+            @RequestParam(value = "view", defaultValue = "INCOMING", required = false) String view, // INCOMING/SENT
+            @RequestParam(defaultValue = "0") int page,     // 0-based
+            @RequestParam(defaultValue = "12") int size,
+            Model model) {
+        Page<PetRequestRes> reqs = petService.getRequests(status, view, page, size);
+        // range text like "13–24 of 86"
+        int rangeStart = reqs.getTotalElements() == 0 ? 0 : reqs.getNumber() * reqs.getSize() + 1;
+        int rangeEnd = Math.min((reqs.getNumber() + 1) * reqs.getSize(), (int) reqs.getTotalElements());
 
+        model.addAttribute("page", reqs);
+        model.addAttribute("activeStatus", status);
+        model.addAttribute("view", view);
+
+
+        model.addAttribute("size", size);
+        model.addAttribute("rangeStart", rangeStart);
+        model.addAttribute("rangeEnd", rangeEnd);
+        model.addAttribute("pageNumbers", PaginationUtils.computePageNumbers(reqs));
+
+        return "pet/request/list";
+    }
+
+
+    @PostMapping(value = "/requests", params = "_method=put")
+    public String handleRequest(
+            @ModelAttribute HandlePetRequestDto dto,
+            @RequestParam(value = "status", required = false) PetRequestStatus status,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size,
+            RedirectAttributes ra) {
+        petService.handleRequest(dto);
+        ra.addFlashAttribute("success", "Request updated.");
+        // Preserve current filter/pagination context on redirect
+        StringBuilder redirect = new StringBuilder("redirect:/pets/requests");
+        List<String> qs = new ArrayList<>();
+        if (status != null) qs.add("status=" + status);
+        if (page != null) qs.add("page=" + page);
+        if (size != null) qs.add("size=" + size);
+        if (!qs.isEmpty()) redirect.append("?").append(String.join("&", qs));
+        return redirect.toString();
+    }
 }

@@ -1,0 +1,246 @@
+.request-cards {
+    grid-template-columns:repeat( auto-fill, minmax(320px, 1fr))
+}
+
+.request-card .req-title {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.request-card .link {
+    color: var(--text);
+    text-decoration: none
+}
+
+.request-card .link:hover {
+    text-decoration: underline
+}
+
+.req-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 8px
+}
+
+.req-grid .info {
+    padding: 10px
+}
+
+.req-message {
+    margin-top: 12px
+}
+
+.req-message .label {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 4px
+}
+
+.inline-form {
+    display: inline
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px
+}
+
+.pagination .disabled {
+    opacity: .5;
+    pointer-events: none
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px
+}
+
+.page-numbers .active {
+    border-color: var(--primary-600);
+    color: var(--primary-600);
+    font-weight: 700
+}
+
+.chip-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.chip-active {
+    outline: 2px solid rgba(91, 140, 255, .25);
+    background: #eef3ff
+}
+
+/* Stop the pet status badge from floating over the card in the Requests list */
+.request-card .badge {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    inset: auto !important;
+    margin-left: 8px;
+}
+
+/* Ensure name + badge share a row nicely */
+.req-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap; /* wrap on small screens / long names */
+}
+
+.req-title .title {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.req-title .badge {
+    flex-shrink: 0;
+}
+
+
+/* Keep your previous rules */
+.request-cards {
+    grid-template-columns:repeat( auto-fill, minmax(320px, 1fr))
+}
+
+.request-card .req-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: space-between
+}
+
+.request-card .link {
+    color: var(--text);
+    text-decoration: none
+}
+
+.request-card .link:hover {
+    text-decoration: underline
+}
+
+.req-grid .info {
+    padding: 10px
+}
+
+.req-message {
+    margin-top: 12px
+}
+
+.req-message .label {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 4px
+}
+
+.inline-form {
+    display: inline
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px
+}
+
+.pagination .disabled {
+    opacity: .5;
+    pointer-events: none
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px
+}
+
+.page-numbers .active {
+    border-color: var(--primary-600);
+    color: var(--primary-600);
+    font-weight: 700
+}
+
+/* Prevent card badge overlap (global .badge is absolute) */
+.request-card .badge {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important
+}
+
+/* -------- Segmented controls (view & status) -------- */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.segmented-form {
+    display: flex;
+    align-items: center;
+    gap: 8px
+}
+
+.segmented {
+    display: inline-flex;
+    gap: 0;
+    background: var(--panel);
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: var(--shadow)
+}
+
+.segmented input[type="radio"] {
+    display: none
+}
+
+.segmented label {
+    padding: 8px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    transition: background .15s ease, color .15s ease;
+}
+
+.segmented input[type="radio"]:checked + label {
+    color: #fff;
+    background: var(--primary);
+}
+
+.segmented label + input[type="radio"] + label {
+    border-left: 1px solid #e5e7eb
+}
+
+/* Small screens: stack nicely */
+@media (max-width: 720px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start
+    }
+
+    .segmented {
+        width: 100%
+    }
+
+    .segmented label {
+        flex: 1 1 0;
+        text-align: center
+    }
+}

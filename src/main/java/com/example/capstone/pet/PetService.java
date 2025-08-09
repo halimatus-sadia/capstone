@@ -1,5 +1,6 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.pet.request.*;
 import com.example.capstone.utils.AuthUtils;
 import com.example.capstone.utils.NullHandlerUtils;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,12 @@ public class PetService {
     private final PetMapper petMapper;
     private final PetRepository petRepository;
     private final AuthUtils authUtils;
+    private final PetRequestMapper petRequestMapper;
+    private final PetRequestRepository petRequestRepository;
 
+    // =========================
+    // Pets (existing)
+    // =========================
     public Page<PetResponseDto> getFilteredPets(
             String species,
             String breed,
@@ -28,32 +34,122 @@ public class PetService {
             int page,
             int size,
             String sort /*e.g. NEWEST, PRICE_ASC, PRICE_DESC, AGE_ASC, AGE_DESC, NAME_ASC, NAME_DESC*/) {
+
         Pageable pageable = PageRequest.of(page, size, mapSort(sort));
         return petRepository.findAllPets(
                         NullHandlerUtils.nullIfBlank(species),
                         NullHandlerUtils.nullIfBlank(breed),
                         status,
                         NullHandlerUtils.nullIfBlank(location),
+                        authUtils.getLoggedInUser().getId(),
                         pageable)
                 .map(petMapper::toDto);
     }
 
     public PetResponseDto getById(Long id) {
-        return petRepository.findById(id).map(petMapper::toDto).orElseThrow(() -> new RuntimeException("Pet not found"));
+        return petRepository.findById(id)
+                .map(petMapper::toDto)
+                .orElseThrow(() -> new RuntimeException("Pet not found"));
+    }
+
+    // NEW: return active request status if one exists (PENDING/ACCEPTED), else null
+    public PetRequestStatus getActiveRequestStatusForPet(Long petId) {
+        return petRequestRepository
+                .findFirstByPetIdAndStatusInOrderByCreatedAtDesc(
+                        petId, List.of(PetRequestStatus.PENDING, PetRequestStatus.ACCEPTED))
+                .map(PetRequest::getStatus)
+                .orElse(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void createPetListing(PetRequestDto dto) {
+    public void createPetListing(PetSaveRequest dto) {
         petRepository.save(petMapper.toEntity(dto));
     }
 
     public List<PetResponseDto> getMyPetListings() {
-        return petRepository.findAllByOwnerId(authUtils.getLoggedInUser().getId()).stream().map(petMapper::toDto).toList();
+        return petRepository.findAllByOwnerId(authUtils.getLoggedInUser().getId())
+                .stream()
+                .map(petMapper::toDto)
+                .toList();
     }
+
+    // =========================
+    // Requests (new + existing)
+    // =========================
+
+    /**
+     * Create a pet request. Throws if there is already a PENDING/ACCEPTED request for the same pet.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void createPetRequest(PetRequestReq dto) {
+        Pet pet = petRepository.findById(dto.getPetId())
+                .orElseThrow(() -> new RuntimeException("Pet not found"));
+
+        // Ensure only one active (PENDING/ACCEPTED) request per pet at a time
+        if (petRequestRepository.existsByPetIdAndStatusIn(
+                dto.getPetId(),
+                List.of(PetRequestStatus.PENDING, PetRequestStatus.ACCEPTED))) {
+            throw new RuntimeException("A request for this pet already PENDING/ACCEPTED.");
+        }
+
+        petRequestRepository.save(petRequestMapper.toEntity(dto, pet));
+    }
+
+    /**
+     * Handle a request (ACCEPT / REJECT). PENDING is not allowed.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void handleRequest(HandlePetRequestDto dto) {
+        PetRequest request = petRequestRepository
+                .findById(dto.getPetRequestId())
+                .orElseThrow(() -> new RuntimeException("Pet request not found."));
+        Pet pet = request.getPet();
+        if (dto.getStatus() == PetRequestStatus.PENDING) {
+            throw new RuntimeException("Request can't be PENDING.");
+        }
+        if (request.getStatus() != PetRequestStatus.PENDING) {
+            throw new RuntimeException("Request is already ACCEPTED/REJECTED.");
+        }
+
+        if (dto.getStatus() == PetRequestStatus.ACCEPTED) {
+            pet.setIsRequestAccepted(true);
+            petRepository.save(pet);
+        }
+        request.setStatus(dto.getStatus());
+        petRequestRepository.save(request);
+    }
+
+    /**
+     * Paginated & filterable list of requests for the admin/owner view.
+     * - Filters by status when provided (PENDING/ACCEPTED/REJECTED); otherwise returns all.
+     * - Sorted by createdAt DESC, id DESC for stable pagination.
+     */
+    public Page<PetRequestRes> getRequests(PetRequestStatus status, String view, int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+
+        Long me = authUtils.getLoggedInUser().getId();
+        boolean sent = "SENT".equalsIgnoreCase(view);
+
+        Page<PetRequest> result;
+        if (sent) {
+            result = petRequestRepository.findAllByRequestedById(me, status, pageable);
+        } else {
+            // default to INCOMING
+            result = petRequestRepository.findByPetOwnerIdAndStatus(me, status, pageable);
+        }
+        return result.map(petRequestMapper::toDto);
+    }
+
+    // =========================
+    // Helpers
+    // =========================
 
     private Sort mapSort(String sort) {
         String key = (sort == null || sort.isBlank()) ? "NEWEST" : sort.toUpperCase(Locale.ROOT);
-        // You can add more fields later; keep defaults safe
+        // Keep defaults safe and nulls last to avoid JPA null precedence issues
         return switch (key) {
             case "PRICE_ASC" -> Sort.by(Sort.Order.asc("price").nullsLast());
             case "PRICE_DESC" -> Sort.by(Sort.Order.desc("price").nullsLast());
@@ -65,5 +161,4 @@ public class PetService {
             default -> Sort.by(Sort.Order.desc("id"));
         };
     }
-
 }

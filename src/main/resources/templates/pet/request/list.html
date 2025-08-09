@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests | PetPort</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/request_list.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="container">
+    <!-- Header / Filters -->
+    <section class="results-head">
+        <div>
+            <h1 style="margin:0">Requests</h1>
+            <p class="muted" style="margin:4px 0 0"
+               th:text="${page.totalElements == 0} ? '0 total' : ${rangeStart} + '–' + ${rangeEnd} + ' of ' + ${page.totalElements}">
+                0 total
+            </p>
+        </div>
+
+        <div class="toolbar">
+            <!-- View segmented: INCOMING / SENT -->
+            <form method="get" class="segmented-form">
+                <input type="hidden" name="status" th:value="${activeStatus}">
+                <input type="hidden" name="size" th:value="${size}">
+                <input type="hidden" name="page" value="0"><!-- reset on change -->
+
+                <div class="segmented" role="tablist" aria-label="View">
+                    <input type="radio" id="view-incoming" name="view" value="INCOMING"
+                           th:checked="${view} == 'INCOMING'" onchange="this.form.submit()">
+                    <label for="view-incoming">Requests to My Pets</label>
+
+                    <input type="radio" id="view-sent" name="view" value="SENT"
+                           th:checked="${view} == 'SENT'" onchange="this.form.submit()">
+                    <label for="view-sent">My Sent Requests</label>
+                </div>
+            </form>
+
+            <!-- Status segmented: All / Pending / Accepted / Rejected -->
+            <form method="get" class="segmented-form">
+                <input type="hidden" name="view" th:value="${view}">
+                <input type="hidden" name="size" th:value="${size}">
+                <input type="hidden" name="page" value="0"><!-- reset on change -->
+
+                <div class="segmented" role="tablist" aria-label="Status">
+                    <input type="radio" id="st-all" name="status" value=""
+                           th:checked="${activeStatus == null}" onchange="this.form.submit()">
+                    <label for="st-all">All</label>
+
+                    <input type="radio" id="st-pending" name="status" value="PENDING"
+                           th:checked="${activeStatus?.name() == 'PENDING'}" onchange="this.form.submit()">
+                    <label for="st-pending">Pending</label>
+
+                    <input type="radio" id="st-accepted" name="status" value="ACCEPTED"
+                           th:checked="${activeStatus?.name() == 'ACCEPTED'}" onchange="this.form.submit()">
+                    <label for="st-accepted">Accepted</label>
+
+                    <input type="radio" id="st-rejected" name="status" value="REJECTED"
+                           th:checked="${activeStatus?.name() == 'REJECTED'}" onchange="this.form.submit()">
+                    <label for="st-rejected">Rejected</label>
+                </div>
+            </form>
+
+            <!-- Per-page -->
+            <form method="get" class="field compact segmented-form">
+                <span>Per page</span>
+                <input type="hidden" name="view" th:value="${view}">
+                <input type="hidden" name="status" th:value="${activeStatus}">
+                <input type="hidden" name="page" th:value="${page.number}">
+                <select name="size" onchange="this.form.submit()">
+                    <option th:value="6" th:selected="${size == 6}">6</option>
+                    <option th:value="12" th:selected="${size == 12}">12</option>
+                    <option th:value="24" th:selected="${size == 24}">24</option>
+                    <option th:value="48" th:selected="${size == 48}">48</option>
+                </select>
+            </form>
+        </div>
+    </section>
+
+    <!-- Cards -->
+    <section th:if="${page.content.size() > 0}" class="cards request-cards">
+        <article class="card request-card" th:each="req : ${page.content}">
+            <div class="card-body">
+                <div class="card-top req-title">
+                    <a class="title link"
+                       th:href="@{/pets/{id}(id=${req.pet.id})}"
+                       th:text="${req.pet.name}">Pet name</a>
+
+                    <!-- Pet listing status -->
+                    <span class="badge badge-status"
+                          th:classappend="' status-' + ${req.pet.status}"
+                          th:text="${#strings.replace(req.pet.status.name(),'_',' ')}">FOR ADOPTION</span>
+
+                    <!-- Request status -->
+                    <span class="chip"
+                          th:classappend="${req.status.name() == 'PENDING'} ? ' chip-warn' :
+                                (${req.status.name() == 'ACCEPTED'} ? ' chip-ok' : '')"
+                          th:text="${#strings.capitalize(req.status.name().toLowerCase())}">Pending</span>
+                </div>
+
+                <p class="meta" th:text="${#temporals.format(req.createdAt,'d MMM yyyy, h:mm a')}">9 Aug 2025</p>
+
+                <div class="grid-2 req-grid">
+                    <div class="info">
+                        <span class="label">Requester</span>
+                        <span th:text="${req.requesterName}">user</span>
+                    </div>
+                    <div class="info">
+                        <span class="label">Contact</span>
+                        <span th:text="${req.requesterContact}">user@email.com</span>
+                    </div>
+                </div>
+
+                <div class="req-message">
+                    <span class="label">Message</span>
+                    <p th:text="${req.message}">I'm very interested…</p>
+                </div>
+
+                <!-- Actions: only for INCOMING + PENDING -->
+                <div class="card-actions" th:if="${view == 'INCOMING' and req.status.name() == 'PENDING'}">
+                    <form th:action="@{/pets/requests}" method="post" class="inline-form">
+                        <input type="hidden" name="_method" value="put"/>
+                        <input type="hidden" name="petRequestId" th:value="${req.id}"/>
+                        <input type="hidden" name="status" value="ACCEPTED"/>
+                        <input type="hidden" name="view" th:value="${view}"/>
+                        <input type="hidden" name="page" th:value="${page.number}"/>
+                        <input type="hidden" name="size" th:value="${page.size}"/>
+                        <button class="btn btn-primary" type="submit">Accept</button>
+                    </form>
+
+                    <form th:action="@{/pets/requests}" method="post" class="inline-form">
+                        <input type="hidden" name="_method" value="put"/>
+                        <input type="hidden" name="petRequestId" th:value="${req.id}"/>
+                        <input type="hidden" name="status" value="REJECTED"/>
+                        <input type="hidden" name="view" th:value="${view}"/>
+                        <input type="hidden" name="page" th:value="${page.number}"/>
+                        <input type="hidden" name="size" th:value="${page.size}"/>
+                        <button class="btn btn-outline" type="submit">Reject</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <!-- Empty state -->
+    <div class="empty-state" th:if="${page.content.size() == 0}">
+        <div class="emoji">🐾</div>
+        <p class="muted">No requests found</p>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination" th:if="${page.totalPages > 1}">
+        <ul>
+            <li>
+                <a class="btn btn-outline"
+                   th:classappend="${page.first} ? ' disabled'"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${page.number-1}, size=${size})}"
+                   aria-label="Previous">‹ Prev</a>
+            </li>
+
+            <li th:each="p : ${pageNumbers}">
+                <span class="gap" th:if="${p instanceof T(java.lang.String)}" th:text="${p}">…</span>
+                <a class="btn btn-ghost"
+                   th:if="${p instanceof T(java.lang.Integer)}"
+                   th:classappend="${p} == ${page.number} ? ' active'"
+                   th:text="${p + 1}"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${p}, size=${size})}">1</a>
+            </li>
+
+            <li>
+                <a class="btn btn-outline"
+                   th:classappend="${page.last} ? ' disabled'"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${page.number+1}, size=${size})}"
+                   aria-label="Next">Next ›</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p class="muted">© <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}"></span> PetPort</p>
+    </div>
+</footer>
+</body>
+</html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests | PetPort</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/request_list.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="container">
+    <!-- Header / Filters -->
+    <section class="results-head">
+        <div>
+            <h1 style="margin:0">Requests</h1>
+            <p class="muted" style="margin:4px 0 0"
+               th:text="${page.totalElements == 0} ? '0 total' : ${rangeStart} + '–' + ${rangeEnd} + ' of ' + ${page.totalElements}">
+                0 total
+            </p>
+        </div>
+
+        <div class="toolbar">
+            <!-- View segmented: INCOMING / SENT -->
+            <form method="get" class="segmented-form">
+                <input type="hidden" name="status" th:value="${activeStatus}">
+                <input type="hidden" name="size" th:value="${size}">
+                <input type="hidden" name="page" value="0"><!-- reset on change -->
+
+                <div class="segmented" role="tablist" aria-label="View">
+                    <input type="radio" id="view-incoming" name="view" value="INCOMING"
+                           th:checked="${view} == 'INCOMING'" onchange="this.form.submit()">
+                    <label for="view-incoming">Requests to My Pets</label>
+
+                    <input type="radio" id="view-sent" name="view" value="SENT"
+                           th:checked="${view} == 'SENT'" onchange="this.form.submit()">
+                    <label for="view-sent">My Sent Requests</label>
+                </div>
+            </form>
+
+            <!-- Status segmented: All / Pending / Accepted / Rejected -->
+            <form method="get" class="segmented-form">
+                <input type="hidden" name="view" th:value="${view}">
+                <input type="hidden" name="size" th:value="${size}">
+                <input type="hidden" name="page" value="0"><!-- reset on change -->
+
+                <div class="segmented" role="tablist" aria-label="Status">
+                    <input type="radio" id="st-all" name="status" value=""
+                           th:checked="${activeStatus == null}" onchange="this.form.submit()">
+                    <label for="st-all">All</label>
+
+                    <input type="radio" id="st-pending" name="status" value="PENDING"
+                           th:checked="${activeStatus?.name() == 'PENDING'}" onchange="this.form.submit()">
+                    <label for="st-pending">Pending</label>
+
+                    <input type="radio" id="st-accepted" name="status" value="ACCEPTED"
+                           th:checked="${activeStatus?.name() == 'ACCEPTED'}" onchange="this.form.submit()">
+                    <label for="st-accepted">Accepted</label>
+
+                    <input type="radio" id="st-rejected" name="status" value="REJECTED"
+                           th:checked="${activeStatus?.name() == 'REJECTED'}" onchange="this.form.submit()">
+                    <label for="st-rejected">Rejected</label>
+                </div>
+            </form>
+
+            <!-- Per-page -->
+            <form method="get" class="field compact segmented-form">
+                <span>Per page</span>
+                <input type="hidden" name="view" th:value="${view}">
+                <input type="hidden" name="status" th:value="${activeStatus}">
+                <input type="hidden" name="page" th:value="${page.number}">
+                <select name="size" onchange="this.form.submit()">
+                    <option th:value="6" th:selected="${size == 6}">6</option>
+                    <option th:value="12" th:selected="${size == 12}">12</option>
+                    <option th:value="24" th:selected="${size == 24}">24</option>
+                    <option th:value="48" th:selected="${size == 48}">48</option>
+                </select>
+            </form>
+        </div>
+    </section>
+
+    <!-- Cards -->
+    <section th:if="${page.content.size() > 0}" class="cards request-cards">
+        <article class="card request-card" th:each="req : ${page.content}">
+            <div class="card-body">
+                <div class="card-top req-title">
+                    <a class="title link"
+                       th:href="@{/pets/{id}(id=${req.pet.id})}"
+                       th:text="${req.pet.name}">Pet name</a>
+
+                    <!-- Pet listing status -->
+                    <span class="badge badge-status"
+                          th:classappend="' status-' + ${req.pet.status}"
+                          th:text="${#strings.replace(req.pet.status.name(),'_',' ')}">FOR ADOPTION</span>
+
+                    <!-- Request status -->
+                    <span class="chip"
+                          th:classappend="${req.status.name() == 'PENDING'} ? ' chip-warn' :
+                                (${req.status.name() == 'ACCEPTED'} ? ' chip-ok' : '')"
+                          th:text="${#strings.capitalize(req.status.name().toLowerCase())}">Pending</span>
+                </div>
+
+                <p class="meta" th:text="${#temporals.format(req.createdAt,'d MMM yyyy, h:mm a')}">9 Aug 2025</p>
+
+                <div class="grid-2 req-grid">
+                    <div class="info">
+                        <span class="label">Requester</span>
+                        <span th:text="${req.requesterName}">user</span>
+                    </div>
+                    <div class="info">
+                        <span class="label">Contact</span>
+                        <span th:text="${req.requesterContact}">user@email.com</span>
+                    </div>
+                </div>
+
+                <div class="req-message">
+                    <span class="label">Message</span>
+                    <p th:text="${req.message}">I'm very interested…</p>
+                </div>
+
+                <!-- Actions: only for INCOMING + PENDING -->
+                <div class="card-actions" th:if="${view == 'INCOMING' and req.status.name() == 'PENDING'}">
+                    <form th:action="@{/pets/requests}" method="post" class="inline-form">
+                        <input type="hidden" name="_method" value="put"/>
+                        <input type="hidden" name="petRequestId" th:value="${req.id}"/>
+                        <input type="hidden" name="status" value="ACCEPTED"/>
+                        <input type="hidden" name="view" th:value="${view}"/>
+                        <input type="hidden" name="page" th:value="${page.number}"/>
+                        <input type="hidden" name="size" th:value="${page.size}"/>
+                        <button class="btn btn-primary" type="submit">Accept</button>
+                    </form>
+
+                    <form th:action="@{/pets/requests}" method="post" class="inline-form">
+                        <input type="hidden" name="_method" value="put"/>
+                        <input type="hidden" name="petRequestId" th:value="${req.id}"/>
+                        <input type="hidden" name="status" value="REJECTED"/>
+                        <input type="hidden" name="view" th:value="${view}"/>
+                        <input type="hidden" name="page" th:value="${page.number}"/>
+                        <input type="hidden" name="size" th:value="${page.size}"/>
+                        <button class="btn btn-outline" type="submit">Reject</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <!-- Empty state -->
+    <div class="empty-state" th:if="${page.content.size() == 0}">
+        <div class="emoji">🐾</div>
+        <p class="muted">No requests found</p>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination" th:if="${page.totalPages > 1}">
+        <ul>
+            <li>
+                <a class="btn btn-outline"
+                   th:classappend="${page.first} ? ' disabled'"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${page.number-1}, size=${size})}"
+                   aria-label="Previous">‹ Prev</a>
+            </li>
+
+            <li th:each="p : ${pageNumbers}">
+                <span class="gap" th:if="${p instanceof T(java.lang.String)}" th:text="${p}">…</span>
+                <a class="btn btn-ghost"
+                   th:if="${p instanceof T(java.lang.Integer)}"
+                   th:classappend="${p} == ${page.number} ? ' active'"
+                   th:text="${p + 1}"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${p}, size=${size})}">1</a>
+            </li>
+
+            <li>
+                <a class="btn btn-outline"
+                   th:classappend="${page.last} ? ' disabled'"
+                   th:href="@{/pets/requests(view=${view}, status=${activeStatus}, page=${page.number+1}, size=${size})}"
+                   aria-label="Next">Next ›</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p class="muted">© <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}"></span> PetPort</p>
+    </div>
+</footer>
+</body>
+</html>

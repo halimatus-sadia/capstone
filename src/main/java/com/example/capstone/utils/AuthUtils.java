@@ -17,6 +17,8 @@ public class AuthUtils {
     public User getLoggedInUser() {
         var principal = (org.springframework.security.core.userdetails.User)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByUsername(principal.getUsername()).orElseThrow();
+        return userRepository
+                .findByUsername(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found."));
     }
 }

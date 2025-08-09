@@ -1,0 +1,55 @@
+.request-card {
+    margin-top: 24px;
+    background: var(--panel);
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+.request-form .field {
+    margin-bottom: 14px;
+}
+
+.request-form textarea {
+    resize: vertical;
+    background: var(--soft);
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--text);
+}
+
+.request-item {
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    background: var(--soft);
+}
+
+.request-form input,
+.request-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .detail-body,
+    .request-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .request-card {
+        padding: 16px;
+    }
+}
+
+body {
+    overflow-x: hidden;
+}
+
+* {
+    min-width: 0;
+}

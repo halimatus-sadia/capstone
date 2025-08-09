@@ -5,6 +5,7 @@
     <title th:text="${pet.name} + ' | Pet Details'">Pet Details</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/pet_detail.css}">
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
@@ -75,6 +76,54 @@
             <p class="muted">For privacy, direct contact/messaging can be enabled later.</p>
             <button class="btn btn-soft" disabled>Message (coming soon)</button>
         </section>
+
+        <!-- Request Section -->
+        <section class="request-card">
+            <h3>Send a Request</h3>
+
+            <!-- Case 1: Owner viewing their own pet -->
+            <div th:if="${isOwner}">
+                <p class="muted">You are the owner of this pet. You cannot send a request to yourself.</p>
+                <button class="btn btn-soft" disabled>Request Disabled</button>
+            </div>
+
+            <!-- Case 2: Non-owner but has an active request -->
+            <div th:if="${!isOwner and hasActiveRequest}">
+                <p class="muted">
+                    You already have a request for this pet that is
+                    <b>
+                <span class="chip"
+                      th:classappend="${activeReqStatus?.name() == 'PENDING'} ? ' chip-warn' :
+                                      (${activeReqStatus?.name() == 'ACCEPTED'} ? ' chip-ok' : '')"
+                      th:text="${#strings.capitalize(activeReqStatus?.name()?.toLowerCase())}">
+                    Pending
+                </span>
+                    </b>.
+                    New requests are disabled.
+                </p>
+                <button class="btn btn-soft" disabled>Request Disabled</button>
+            </div>
+
+            <!-- Case 3: Normal request form -->
+            <div th:if="${!isOwner and !hasActiveRequest}">
+                <p class="muted">
+                    Interested in this pet? Submit a request to the owner
+                    <b><span th:text="${#strings.replace(pet.status.name(),'_',' ').toLowerCase()}">for adoption</span></b>.
+                </p>
+
+                <form th:action="@{/pets/requests}" method="post" class="request-form">
+                    <input type="hidden" name="petId" th:value="${pet.id}"/>
+
+                    <div class="field">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="3"
+                                  placeholder="I'm very interested in this pet..." required></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Submit Request</button>
+                </form>
+            </div>
+        </section>
+
     </article>
 </main>
 
