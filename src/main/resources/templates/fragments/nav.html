@@ -17,6 +17,7 @@
                 <a href="/pets">Browse</a>
                 <a href="/pets/requests">Requests</a>
                 <a href="/pets/create" class="btn btn-primary">List a Pet</a>
+                <div th:if="${#authorization.expr('isAuthenticated()')}"><a th:href="@{/profile}">My Profile</a></div>
             </nav>
 
             <button class="hamburger" type="button" onclick="document.body.classList.toggle('nav-open')"
@@ -30,6 +31,7 @@
             <a href="/pets/requests">Requests</a>
             <a href="/pets/create" class="btn btn-primary w-full">List a Pet</a>
         </nav>
+
     </header>
 </div>
 </body>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/profile.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="container">
+    <div class="card p-24 mt-24">
+        <div class="flex-row gap-16 align-center">
+            <!-- Simple avatar with initials -->
+            <div class="avatar-circle"
+                 th:text="${#strings.substring(profile.name,0,1).toUpperCase()} + ${#strings.substring(profile.username,0,1).toUpperCase()}"></div>
+            <div>
+                <h1 class="h2" th:text="${profile.name}">Name</h1>
+                <p class="muted" th:text="'@' + ${profile.username}">@username</p>
+                <p th:text="${profile.email}">email@example.com</p>
+            </div>
+            <div class="flex-1"></div>
+            <a th:href="@{/profile/edit}" class="btn btn-primary">Edit Profile</a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert success mt-16" th:text="${success}"></div>
+</main>
+</body>
+</html>

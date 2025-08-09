@@ -1,6 +1,7 @@
 package com.example.capstone.auth;
 
 import com.example.capstone.common.MinIOService;
+import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,8 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MinIOService minIOService;
+    private final UserMapper userMapper;
+    private final AuthUtils authUtils;
 
 
     @Transactional(rollbackFor = {Exception.class})
@@ -51,5 +54,16 @@ public class UserService implements UserDetailsService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
+    }
+
+    public UserResponse getCurrentProfile() {
+        return userMapper.toResponse(authUtils.getLoggedInUser());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCurrentProfile(UserUpdateRequest updateRequest) {
+        User loggedInUser = authUtils.getLoggedInUser();
+        userMapper.updateEntity(updateRequest, loggedInUser);
+        userRepository.save(loggedInUser);
     }
 }

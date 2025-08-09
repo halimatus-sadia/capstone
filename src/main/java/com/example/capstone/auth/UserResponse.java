@@ -10,5 +10,9 @@ public class UserResponse {
     private String name;
     private String username;
     private String email;
-    private Set<String> roles;
+    private String profileImageFilePath;
+
+    // for UI only
+    private String newPassword;
+    private String confirmPassword;
 }

@@ -1,0 +1,121 @@
+/* Avatar circle */
+.avatar-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+/* Spacing & layout helpers matching your UI */
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.card {
+    background: var(--surface, #fff);
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+}
+
+.p-24 {
+    padding: 24px;
+}
+
+.mt-24 {
+    margin-top: 24px;
+}
+
+.flex-row {
+    display: flex;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.gap-16 {
+    gap: 16px;
+}
+
+.gap-12 {
+    gap: 12px;
+}
+
+.h2 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.muted {
+    color: #6b7280;
+}
+
+.mb-16 {
+    margin-bottom: 16px;
+}
+
+.mb-8 {
+    margin-bottom: 8px;
+}
+
+/* Buttons consistent with your existing UI */
+.btn {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #1f6feb;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    filter: brightness(0.96);
+}
+
+.btn-secondary {
+    background: #eef2ff;
+    color: #1e293b;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: var(--surface, #fff);
+}
+
+.invalid {
+    color: #b91c1c;
+    font-size: .9rem;
+}
+
+/* Alerts */
+.alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+}
+
+.alert.success {
+    background: #ecfdf5;
+    color: #065f46;
+}
