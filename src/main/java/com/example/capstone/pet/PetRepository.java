@@ -19,8 +19,8 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
               AND (:breed   IS NULL OR LOWER(p.breed)   LIKE LOWER(CONCAT('%', :breed, '%')))
               AND (:status  IS NULL OR p.status = :status)
               AND (:location IS NULL OR LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%')))
-              AND coalesce(p.isRequestAccepted, false) = false
-              AND p.owner.id != :userId
+              AND COALESCE(p.isRequestAccepted, FALSE) = FALSE
+              AND (:ownPets IS FALSE AND p.owner.id != :userId OR :ownPets IS TRUE AND p.owner.id = :userId)
             """)
     Page<Pet> findAllPets(
             @Param("species") String species,
@@ -28,6 +28,7 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
             @Param("status") PetStatus status,
             @Param("location") String location,
             @Param("userId") Long userId,
+            @Param("ownPets") boolean ownPets,
             Pageable pageable);
 
     List<Pet> findAllByOwnerId(Long ownerId);

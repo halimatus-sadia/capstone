@@ -33,6 +33,7 @@ public class PetService {
             String location,
             int page,
             int size,
+            boolean ownPets,
             String sort /*e.g. NEWEST, PRICE_ASC, PRICE_DESC, AGE_ASC, AGE_DESC, NAME_ASC, NAME_DESC*/) {
 
         Pageable pageable = PageRequest.of(page, size, mapSort(sort));
@@ -42,6 +43,7 @@ public class PetService {
                         status,
                         NullHandlerUtils.nullIfBlank(location),
                         authUtils.getLoggedInUser().getId(),
+                        ownPets,
                         pageable)
                 .map(petMapper::toDto);
     }

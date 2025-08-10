@@ -14,7 +14,8 @@
             </a>
 
             <nav class="nav-links">
-                <a href="/pets">Browse</a>
+                <a href="/pets">Browse Pets</a>
+                <a href="/pets/own-pet-list">My Pets</a>
                 <a href="/pets/requests">Requests</a>
                 <a href="/pets/create" class="btn btn-primary">List a Pet</a>
                 <div th:if="${#authorization.expr('isAuthenticated()')}"><a th:href="@{/profile}">My Profile</a></div>

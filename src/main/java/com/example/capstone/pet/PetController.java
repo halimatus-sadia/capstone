@@ -63,6 +63,7 @@ public class PetController {
                 location,
                 page,
                 size,
+                false,
                 sort);
 
         // range text like "13–24 of 86"
@@ -101,6 +102,46 @@ public class PetController {
         model.addAttribute("activeReqStatus", activeReqStatus);
 
         return "pet/detail";
+    }
+
+    @GetMapping("/own-pet-list")
+    public String ownPetList(
+            @RequestParam(required = false) String species,
+            @RequestParam(required = false) String breed,
+            @RequestParam(required = false) PetStatus status,
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "0", required = false) int page,     // 0-based
+            @RequestParam(defaultValue = "12", required = false) int size,
+            @RequestParam(defaultValue = "NEWEST", required = false) String sort,
+            Model model) {
+        Page<PetResponseDto> pets = petService.getFilteredPets(
+                species,
+                breed,
+                status,
+                location,
+                page,
+                size,
+                true,
+                sort);
+
+        // range text like "13–24 of 86"
+        int rangeStart = pets.getTotalElements() == 0 ? 0 : pets.getNumber() * pets.getSize() + 1;
+        int rangeEnd = Math.min((pets.getNumber() + 1) * pets.getSize(), (int) pets.getTotalElements());
+
+        model.addAttribute("pets", pets);
+        model.addAttribute("species", species);
+        model.addAttribute("breed", breed);
+        model.addAttribute("status", status);
+        model.addAttribute("location", location);
+        model.addAttribute("statuses", PetStatus.values());
+
+        model.addAttribute("size", size);
+        model.addAttribute("sort", sort);
+        model.addAttribute("rangeStart", rangeStart);
+        model.addAttribute("rangeEnd", rangeEnd);
+        model.addAttribute("pageNumbers", PaginationUtils.computePageNumbers(pets));
+
+        return "pet/own_pet_list";
     }
 
     @PostMapping("/requests")
