@@ -197,4 +197,32 @@ public class PetController {
         if (!qs.isEmpty()) redirect.append("?").append(String.join("&", qs));
         return redirect.toString();
     }
+
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        PetSaveRequest form = petService.getEditFormForOwner(id);
+        model.addAttribute("pet", form);
+        model.addAttribute("petId", id);            // <-- add this
+        model.addAttribute("statuses", PetStatus.values());
+        return "pet/edit";
+    }
+
+    @PostMapping(value = "/{id}", params = "_method=put")
+    public String updatePet(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("pet") PetSaveRequest dto,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes ra) {
+
+        model.addAttribute("statuses", PetStatus.values());
+        if (bindingResult.hasErrors()) {
+            return "pet/edit";
+        }
+
+        petService.updatePetAsOwner(id, dto); // Throws if not owner
+        ra.addFlashAttribute("success", "Pet updated successfully.");
+        return "redirect:/pets/" + id;
+    }
+
 }

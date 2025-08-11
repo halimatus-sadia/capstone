@@ -65,10 +65,10 @@
             </p>
         </section>
 
-        <div class="cta-row">
-            <a class="btn btn-primary" href="#contact">Contact owner</a>
-            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
-        </div>
+        <!--    <div class="cta-row">
+                <a class="btn btn-primary" href="#contact">Contact owner</a>
+                <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
+            </div>-->
 
         <!-- Placeholder: if you have owner profile or message flow -->
         <section id="contact" class="contact-card">
@@ -123,6 +123,13 @@
                 </form>
             </div>
         </section>
+
+        <!-- detail.html -->
+        <div class="cta-row">
+            <a class="btn btn-outline" href="#contact">Contact owner</a>
+            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
+            <a class="btn" th:if="${isOwner}" th:href="@{'/pets/' + ${pet.id} + '/edit'}">Edit</a>
+        </div>
 
     </article>
 </main>

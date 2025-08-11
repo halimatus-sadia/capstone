@@ -145,6 +145,23 @@ public class PetService {
         return result.map(petRequestMapper::toDto);
     }
 
+    public PetSaveRequest getEditFormForOwner(Long petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Pet not found"));
+        ensureOwnerOrThrow(pet);
+        return petMapper.toSaveRequest(pet); // prefill fields
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePetAsOwner(Long petId, PetSaveRequest dto) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Pet not found"));
+        ensureOwnerOrThrow(pet);
+
+        petMapper.updatePet(dto, pet);
+        petRepository.save(pet);
+    }
+
     // =========================
     // Helpers
     // =========================
@@ -162,5 +179,13 @@ public class PetService {
             case "NEWEST", "RECENT" -> Sort.by(Sort.Order.desc("id")); // default
             default -> Sort.by(Sort.Order.desc("id"));
         };
+    }
+
+    private void ensureOwnerOrThrow(Pet pet) {
+        Long me = authUtils.getLoggedInUser().getId();
+        if (pet.getOwner() == null || !pet.getOwner().getId().equals(me)) {
+            // Use Spring Security's exception if you have it on classpath; otherwise RuntimeException.
+            throw new org.springframework.security.access.AccessDeniedException("Only the owner can edit this pet");
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.example.capstone.utils.AuthUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
@@ -23,4 +24,8 @@ public abstract class PetMapper {
     @Mapping(target = "owner", expression = "java(authUtils.getLoggedInUser())")
     @Mapping(target = "vaccinated", expression = "java(BooleanUtils.isTrue(dto.getVaccinated()))")
     public abstract Pet toEntity(PetSaveRequest dto);
+
+    public abstract PetSaveRequest toSaveRequest(Pet pet);
+
+    public abstract void updatePet( PetSaveRequest dto, @MappingTarget Pet pet);
 }

@@ -17,8 +17,8 @@
                 <a href="/pets">Browse Pets</a>
                 <a href="/pets/own-pet-list">My Pets</a>
                 <a href="/pets/requests">Requests</a>
-                <a href="/pets/create" class="btn btn-primary">List a Pet</a>
-                <div th:if="${#authorization.expr('isAuthenticated()')}"><a th:href="@{/profile}">My Profile</a></div>
+                <a href="/pets/create" class="">List a Pet</a>
+                <div th:if="${#authorization.expr('isAuthenticated()')}"><a th:href="@{/profile}" class="btn btn-outline">My Profile</a></div>
             </nav>
 
             <button class="hamburger" type="button" onclick="document.body.classList.toggle('nav-open')"
