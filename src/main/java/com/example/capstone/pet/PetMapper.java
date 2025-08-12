@@ -27,5 +27,5 @@ public abstract class PetMapper {
 
     public abstract PetSaveRequest toSaveRequest(Pet pet);
 
-    public abstract void updatePet( PetSaveRequest dto, @MappingTarget Pet pet);
+    public abstract void updatePet(PetSaveRequest dto, @MappingTarget Pet pet);
 }
