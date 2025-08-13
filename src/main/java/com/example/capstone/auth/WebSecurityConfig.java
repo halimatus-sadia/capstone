@@ -24,31 +24,29 @@ public class WebSecurityConfig {
 
     private static final String[] whitelisted = new String[]{
             "/register", "/login", "/", "/static/css/**", "/static/js/**",
-            "/explore", "/error", "/403"
+            "/explore", "/error", "/403",
+            "/ws/**", "/app/**", "/chat/**", "/topic/**"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+//                .csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**", "/app/**", "/chat/**"))
+                .headers(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(whitelisted).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .failureHandler(customAuthenticationFailureHandler)
-                        .successHandler(customAuthenticationSuccessHandler)
-                )
+                        .successHandler(customAuthenticationSuccessHandler))
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout=true")
-                )
+                        .logoutSuccessUrl("/login?logout=true"))
                 .httpBasic(Customizer.withDefaults())
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/403")
-                );
+                        .accessDeniedPage("/403"));
 
         return http.build();
     }

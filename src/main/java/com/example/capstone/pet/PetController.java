@@ -86,23 +86,30 @@ public class PetController {
         return "pet/list";
     }
 
-    @GetMapping("/{id}")
-    public String viewPet(@PathVariable Long id, Model model) {
+    @GetMapping({"/{id}", "/pets/{id}"})
+    public String viewOrDetailPet(@PathVariable Long id, Model model) {
         PetResponseDto pet = petService.getById(id);
-        boolean isOwner = pet.getOwner().getId().equals(authUtils.getLoggedInUser().getId());
+        Long currentUserId = authUtils.getLoggedInUser().getId();
+        boolean isOwner = currentUserId != null && currentUserId.equals(pet.getOwner().getId());
+
         boolean hasActiveRequest = false;
         PetRequestStatus activeReqStatus = null;
-        if (!isOwner) { // Only check active request if not owner
+        if (!isOwner) {
             activeReqStatus = petService.getActiveRequestStatusForPet(id);
             hasActiveRequest = (activeReqStatus != null);
         }
+
+        // Add attributes to model
         model.addAttribute("pet", pet);
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("hasActiveRequest", hasActiveRequest);
         model.addAttribute("activeReqStatus", activeReqStatus);
+        model.addAttribute("ownerId", pet.getOwner().getId());
 
         return "pet/detail";
     }
+
 
     @GetMapping("/own-pet-list")
     public String ownPetList(

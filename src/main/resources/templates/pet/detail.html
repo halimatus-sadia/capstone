@@ -131,6 +131,21 @@
             <a class="btn" th:if="${isOwner}" th:href="@{'/pets/' + ${pet.id} + '/edit'}">Edit</a>
         </div>
 
+        <!-- Chat trigger (show only to non-owners) -->
+        <button id="chatWithOwnerBtn" class="btn btn-primary"
+                th:if="${!isOwner}"
+                th:attr="data-pet-id=${pet.id},data-current-user-id=${currentUserId}">
+            Chat with owner
+        </button>
+
+        <!-- Chat widget root -->
+        <div id="chat-widget-root"></div>
+
+        <link rel="stylesheet" th:href="@{/css/pet_chat.css}">
+        <script defer src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+        <script defer th:src="@{/js/chat_widget.js}"></script>
+
     </article>
 </main>
 
