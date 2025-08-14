@@ -5,7 +5,6 @@ import com.example.capstone.pet.PetRepository;
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
