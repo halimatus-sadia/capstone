@@ -162,9 +162,7 @@ public class PetService {
         petRepository.save(pet);
     }
 
-    // =========================
-    // Helpers
-    // =========================
+    // region private-methods
 
     private Sort mapSort(String sort) {
         String key = (sort == null || sort.isBlank()) ? "NEWEST" : sort.toUpperCase(Locale.ROOT);
@@ -188,4 +186,6 @@ public class PetService {
             throw new org.springframework.security.access.AccessDeniedException("Only the owner can edit this pet");
         }
     }
+
+    // endregion private-methods
 }
