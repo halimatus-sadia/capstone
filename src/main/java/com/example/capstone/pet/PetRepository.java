@@ -1,5 +1,6 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.pet.chat.PetSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificationExecutor<Pet> {
@@ -32,4 +34,7 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
             Pageable pageable);
 
     List<Pet> findAllByOwnerId(Long ownerId);
+
+    @Query("select new com.example.capstone.pet.chat.PetSummary(p.id, p.name, '') from Pet p where p.id=:id")
+    Optional<PetSummary> findSummaryById(Long id);
 }

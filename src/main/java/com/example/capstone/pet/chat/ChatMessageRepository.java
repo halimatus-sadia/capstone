@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     Page<ChatMessage> findByThreadOrderBySentAtAsc(ChatThread thread, Pageable pageable);
+
+    ChatMessage findTop1ByThreadOrderBySentAtDesc(ChatThread thread);
 }

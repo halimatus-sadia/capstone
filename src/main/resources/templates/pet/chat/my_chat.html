@@ -1,0 +1,235 @@
+<!-- src/main/resources/templates/my_chats.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My Chats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #fff;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        .messenger {
+            max-width: 1100px;
+            margin: 24px auto;
+            height: calc(100vh - 140px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg);
+            display: grid;
+            grid-template-columns: 360px 1fr;
+        }
+
+        .sidebar .search {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            background: #f9fafb;
+        }
+
+        .sidebar input {
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .sidebar input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .thread-list {
+            overflow: auto;
+        }
+
+        .item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            align-items: center;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .item:hover {
+            background: #f9fafb;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            overflow: hidden;
+            flex: 0 0 auto;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .meta {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .time {
+            color: var(--muted);
+            font-size: 12px;
+            flex: 0 0 auto;
+        }
+
+        .bottom {
+            color: var(--muted);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pettag {
+            font-size: 12px;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 999px;
+            padding: 2px 8px;
+            margin-left: 8px;
+        }
+
+        /* Right pane */
+        .pane {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+        }
+
+        .pane .hint {
+            text-align: center;
+        }
+
+        .chat-header .muted {
+            color: #6b7280;
+        }
+
+        .chat-header .avatar img {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="messenger">
+    <!-- LEFT: list -->
+    <section class="sidebar">
+        <div class="search">
+            <input id="chatFilter" type="text" placeholder="Search chats"/>
+        </div>
+        <div class="thread-list" id="threadList">
+            <div th:each="r : ${rows}" class="item thread-row"
+                 th:attr="
+            data-thread-id=${r.threadId},
+            data-other-name=${r.otherName},
+            data-other-avatar=${r.otherAvatarUrl},
+            data-pet-name=${r.petName},
+            data-pet-img=${r.petImageUrl}">
+                <div class="avatar">
+                    <img th:if="${r.otherAvatarUrl != null}" th:src="${r.otherAvatarUrl}" alt="avatar"/>
+                </div>
+                <div class="meta">
+                    <div class="top">
+                        <div class="name" th:text="${r.otherName}">User</div>
+                        <div class="time" th:text="${#temporals.format(r.lastAt, 'd MMM, HH:mm')}">13 Aug, 21:20</div>
+                    </div>
+                    <div class="bottom">
+                        <span th:text="${#strings.abbreviate(r.lastMessage, 40)}">Last message preview…</span>
+                        <span class="pettag" th:text="${r.petName}">Pet Name</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RIGHT: just a friendly hint (chat opens as floating widget) -->
+    <section class="pane">
+        <div class="hint">
+            <p>Select a conversation on the left to start chatting.</p>
+        </div>
+    </section>
+</main>
+
+<!-- Chat widget root -->
+<div id="chat-widget-root"></div>
+
+<link rel="stylesheet" th:href="@{/css/pet_chat.css}">
+<script defer src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script defer th:src="@{/js/chat_widget.js}"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentUserId = /*[[${currentUserId}]]*/ 0;
+
+        // Open when clicking an item
+        document.querySelectorAll('.thread-row').forEach(el => {
+            el.addEventListener('click', () => {
+                const id = Number(el.dataset.threadId);
+                const hdr = {
+                    name: el.dataset.otherName,
+                    avatar: el.dataset.otherAvatar || null,
+                    petName: el.dataset.petName || null
+                };
+                openThreadSafely(id, currentUserId, hdr);
+            });
+        });
+
+        // Filter
+        const filter = document.getElementById('chatFilter');
+        filter.addEventListener('input', () => {
+            const q = filter.value.toLowerCase();
+            document.querySelectorAll('.thread-row').forEach(el => {
+                const name = (el.dataset.otherName || '').toLowerCase();
+                const pet = (el.dataset.petName || '').toLowerCase();
+                el.style.display = (name.includes(q) || pet.includes(q)) ? '' : 'none';
+            });
+        });
+
+        function openThreadSafely(threadId, uid, header) {
+            const tryOpen = () => {
+                if (window.PetChat && typeof window.PetChat.openThread === 'function') {
+                    window.PetChat.openThread(threadId, uid, header);
+                } else setTimeout(tryOpen, 40);
+            };
+            tryOpen();
+        }
+    });
+</script>
+</body>
+</html>
