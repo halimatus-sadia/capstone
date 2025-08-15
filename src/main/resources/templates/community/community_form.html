@@ -1,0 +1,43 @@
+<!-- src/main/resources/templates/community/community_form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${communityId}!=null ? 'Edit Community' : 'Create Community'">Community</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>.form {
+        display: grid;
+        gap: 12px;
+        max-width: 720px
+    }</style>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+<main class="container" style="padding:20px 0">
+    <h1 th:text="${communityId}!=null ? 'Edit community' : 'Create community'"></h1>
+    <form th:action="${communityId}!=null? @{'/communities/'+${communityId}} : @{/communities}"
+          method="post" th:object="${dto}" class="form">
+        <input type="hidden" th:if="${communityId}!=null" name="_method" value="post"/>
+        <div>
+            <label>Name</label>
+            <input class="input" th:field="*{name}">
+            <small th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:#dc2626"></small>
+        </div>
+        <div>
+            <label>Description</label>
+            <textarea class="input" th:field="*{description}" rows="5"></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr; gap:12px">
+            <div><label>Category</label><input class="input" th:field="*{category}"></div>
+            <div><label>Location</label><input class="input" th:field="*{location}"></div>
+        </div>
+        <div>
+            <label>Cover image URL</label>
+            <input class="input" th:field="*{coverImageUrl}">
+        </div>
+        <button class="btn primary" type="submit">Save</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!-- src/main/resources/templates/community/community_detail.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${community.name}">Community</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        .hero {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            margin-bottom: 14px
+        }
+
+        .hero img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb
+        }
+
+        .post-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .06);
+            padding: 12px 14px;
+            margin-bottom: 12px
+        }
+
+        .muted {
+            color: #6b7280
+        }
+
+        .comment {
+            margin-top: 8px;
+            padding-left: 10px;
+            border-left: 2px solid #e5e7eb
+        }
+
+        .comment .meta {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 2px
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+<main class="container" style="padding:20px 0">
+    <section class="hero">
+        <img th:if="${community.coverImageUrl}" th:src="${community.coverImageUrl}" alt="">
+        <div>
+            <h1 style="font-size:22px;font-weight:700;margin:0" th:text="${community.name}">Community</h1>
+            <div class="muted" th:text="${community.category} + ' • ' + ${community.location}">Meta</div>
+            <div class="muted"><span id="memberCount" th:text="${memberCount}">0</span> members</div>
+        </div>
+        <div style="margin-left:auto">
+            <button id="toggleJoinBtn" class="btn" th:classappend="${isMember}? ' primary' : ''"
+                    th:text="${isMember}? 'Joined' : 'Join'"></button>
+            <input type="hidden" id="communityId" th:value="${community.id}">
+        </div>
+    </section>
+
+    <!-- Create post (show only if member) -->
+    <section th:if="${isMember}" class="post-card">
+        <form id="createPostForm">
+            <input type="text" class="input" placeholder="Title (optional)" th:field="${postDto.title}">
+            <textarea class="input" placeholder="What's on your mind?" rows="4"
+                      th:field="${postDto.content}"></textarea>
+            <input class="input" placeholder="Image URL (optional)" th:field="${postDto.imageUrl}">
+            <button class="btn primary" type="submit">Post</button>
+        </form>
+    </section>
+
+    <!-- Posts list -->
+    <section th:each="p: ${posts.content}" class="post-card">
+        <div style="display:flex;justify-content:space-between;gap:10px">
+            <div>
+                <div style="font-weight:600" th:text="${p.title} ?: 'Post'">Post</div>
+                <div class="muted" th:text="${#temporals.format(p.createdAt, 'dd MMM yyyy, h:mm a')}">when</div>
+            </div>
+            <div th:if="${p.imageUrl}">
+                <img th:src="${p.imageUrl}" alt=""
+                     style="width:140px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb">
+            </div>
+        </div>
+        <div style="margin-top:8px; white-space:pre-wrap" th:text="${p.content}"></div>
+
+        <!-- Comments -->
+        <details style="margin-top:8px">
+            <summary class="muted">Comments</summary>
+            <div class="comment">
+                <form class="comment-form" th:attr="data-post-id=${p.id}">
+                    <textarea class="input" rows="2" placeholder="Write a comment..."></textarea>
+                    <button class="btn" type="submit">Comment</button>
+                </form>
+                <div class="comments" th:replace="community/fragments :: commentsTree(${p.id})"></div>
+            </div>
+        </details>
+    </section>
+
+    <div class="pagination" style="display:flex;gap:8px;justify-content:center;margin-top:18px">
+        <a class="btn" th:if="${posts.hasPrevious()}"
+           th:href="@{'/communities/'+${community.id}+'?page='+${posts.number-1}+'&size='+${posts.size}}">Prev</a>
+        <span style="padding:8px 12px">Page <span th:text="${posts.number+1}"></span> / <span
+                th:text="${posts.totalPages}"></span></span>
+        <a class="btn" th:if="${posts.hasNext()}"
+           th:href="@{'/communities/'+${community.id}+'?page='+${posts.number+1}+'&size='+${posts.size}}">Next</a>
+    </div>
+</main>
+
+<script>
+    // Join/Leave
+    const joinBtn = document.getElementById('toggleJoinBtn');
+    if (joinBtn) {
+        joinBtn.addEventListener('click', async () => {
+            const id = document.getElementById('communityId').value;
+            const res = await fetch(`/api/communities/${id}/toggle-join`, {method: 'POST'});
+            if (res.ok) {
+                const j = await res.json();
+                document.getElementById('memberCount').textContent = j.memberCount;
+                joinBtn.textContent = j.joined ? 'Joined' : 'Join';
+                joinBtn.classList.toggle('primary', j.joined);
+            }
+        });
+    }
+
+    // Create post
+    const postForm = document.getElementById('createPostForm');
+    if (postForm) {
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('communityId').value;
+            const dto = {
+                title: postForm.querySelector('[name="title"]').value || null,
+                content: postForm.querySelector('[name="content"]').value,
+                imageUrl: postForm.querySelector('[name="imageUrl"]').value || null
+            };
+            const res = await fetch(`/api/communities/${id}/posts`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dto)
+            });
+            if (res.ok) location.reload();
+        });
+    }
+
+    // Comments + replies
+    document.querySelectorAll('.comment-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const postId = form.getAttribute('data-post-id');
+            const content = form.querySelector('textarea').value.trim();
+            if (!content) return;
+            const res = await fetch(`/api/communities/posts/${postId}/comments`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({content})
+            });
+            if (res.ok) location.reload();
+        });
+    });
+</script>
+</body>
+</html>

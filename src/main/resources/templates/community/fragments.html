@@ -1,0 +1,29 @@
+<!-- src/main/resources/templates/community/fragments.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="commentsTree(postId)">
+    <div th:with="tops=${@postCommentRepository.findTopLevelWithReplies(postId)}">
+        <div th:each="c : ${tops}" style="margin:8px 0">
+            <div class="meta"
+                 th:text="${#temporals.format(c.createdAt,'dd MMM yyyy, h:mm a')} + ' • ' + ${c.author.name}">meta</div>
+            <div th:text="${c.content}"></div>
+
+            <!-- reply form -->
+            <form class="comment-form" th:attr="data-post-id=${c.post.id}" style="margin-top:6px">
+                <input type="hidden" name="parentId" th:value="${c.id}">
+                <textarea class="input" rows="1" placeholder="Reply..."></textarea>
+                <button class="btn" type="submit">Reply</button>
+            </form>
+
+            <!-- replies -->
+            <div class="comment" th:each="r : ${c.replies}">
+                <div class="meta"
+                     th:text="${#temporals.format(r.createdAt,'dd MMM yyyy, h:mm a')} + ' • ' + ${r.author.name}">meta</div>
+                <div th:text="${r.content}"></div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

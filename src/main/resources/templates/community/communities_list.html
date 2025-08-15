@@ -1,0 +1,110 @@
+<!-- src/main/resources/templates/community/communities_list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Communities</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .06);
+            overflow: hidden;
+        }
+
+        .card .cover {
+            aspect-ratio: 16/9;
+            background: #f1f5f9;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .card .p {
+            padding: 12px 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px
+        }
+
+        .input, select {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 8px 10px
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+        }
+
+        .btn.primary {
+            background: #111827;
+            color: #fff;
+            border-color: #111827;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+<main class="container" style="padding:20px 0">
+    <header class="page-header"
+            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h1 style="font-size:22px;font-weight:700">Communities</h1>
+        <a th:href="@{/communities/create}" class="btn primary">Create community</a>
+    </header>
+
+    <form method="get" class="filters">
+        <input class="input" type="text" name="q" placeholder="Search by name/description" th:value="${q}">
+        <input class="input" type="text" name="category" placeholder="Category" th:value="${category}">
+        <input class="input" type="text" name="location" placeholder="Location" th:value="${location}">
+        <select class="input" name="sort">
+            <option th:value="'createdAt,desc'" th:selected="${sort=='createdAt,desc'}">Newest</option>
+            <option th:value="'createdAt,asc'" th:selected="${sort=='createdAt,asc'}">Oldest</option>
+            <option th:value="'name,asc'" th:selected="${sort=='name,asc'}">Name A–Z</option>
+            <option th:value="'name,desc'" th:selected="${sort=='name,desc'}">Name Z–A</option>
+        </select>
+        <button class="btn" type="submit">Apply</button>
+    </form>
+
+    <section class="grid">
+        <article class="card" th:each="c: ${communities.content}">
+            <img th:if="${c.coverImageUrl}" th:src="${c.coverImageUrl}" class="cover" alt="">
+            <div th:unless="${c.coverImageUrl}" class="cover"></div>
+            <div class="p">
+                <a th:href="@{'/communities/' + ${c.id}}" style="display:block;font-weight:700;margin-bottom:4px"
+                   th:text="${c.name}">Community name</a>
+                <div style="color:#6b7280" th:text="${#strings.abbreviate(c.description, 120)}">desc</div>
+                <div style="display:flex; gap:10px; margin-top:8px; color:#6b7280; font-size:13px">
+                    <span th:text="${c.category}">Category</span>
+                    <span th:text="${c.location}">Location</span>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <div class="pagination" style="display:flex;gap:8px;justify-content:center;margin-top:18px">
+        <a class="btn" th:if="${communities.hasPrevious()}"
+           th:href="@{/communities(page=${communities.number-1},size=${communities.size},q=${q},category=${category},location=${location},sort=${sort})}">Prev</a>
+        <span style="padding:8px 12px">Page <span th:text="${communities.number+1}"></span> / <span
+                th:text="${communities.totalPages}"></span></span>
+        <a class="btn" th:if="${communities.hasNext()}"
+           th:href="@{/communities(page=${communities.number+1},size=${communities.size},q=${q},category=${category},location=${location},sort=${sort})}">Next</a>
+    </div>
+</main>
+</body>
+</html>
