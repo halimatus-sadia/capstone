@@ -71,13 +71,19 @@
             </div>-->
 
         <!-- Placeholder: if you have owner profile or message flow -->
-        <section id="contact" class="contact-card">
+        <section id="contact" class="contact-card" th:if="${!isOwner}">
             <!-- Chat trigger (show only to non-owners) -->
             <button id="chatWithOwnerBtn" class="btn btn-outline"
-                    th:if="${!isOwner}"
-                    th:attr="data-pet-id=${pet.id},data-current-user-id=${currentUserId}">
+                    th:attr="
+                      data-pet-id=${pet.id},
+                      data-pet-name=${pet.name},
+                      data-current-user-id=${currentUserId},
+                      data-owner-name=${pet.owner.name != null ? pet.owner.name : 'Owner'},
+                      data-owner-avatar=${pet.owner.profileImageFilePath},
+                      data-owner-location=${pet.location != null ? pet.location : 'Unknown'}">
                 Chat with owner
             </button>
+
         </section>
 
         <!-- Request Section -->

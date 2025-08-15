@@ -12,8 +12,8 @@
     let subscription = null;
     let subscribedThreadId = null;
 
-    // NEW: header data
-    let headerInfo = {name: 'Chat', avatar: null, petName: null};
+    // Header data now also includes location
+    let headerInfo = {name: 'Chat', avatar: null, petName: null, location: ''};
 
     function createUI() {
         if (!document.getElementById('chatWidget')) {
@@ -21,7 +21,8 @@
         <div class="chat-widget" id="chatWidget" style="display:none">
           <div class="chat-header">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div class="avatar" id="chatHeaderAvatar" style="width:28px;height:28px;border-radius:999px;background:#e5e7eb;overflow:hidden;"></div>
+              <div class="avatar" id="chatHeaderAvatar"
+                   style="width:28px;height:28px;border-radius:999px;background:#e5e7eb;overflow:hidden;display:flex;align-items:center;justify-content:center;"></div>
               <div>
                 <div id="chatHeaderName" style="font-weight:600">Chat</div>
                 <div id="chatHeaderSub" class="muted" style="font-size:12px;"></div>
@@ -47,7 +48,6 @@
                 }
             });
         }
-        // apply header every time UI exists
         applyHeader();
     }
 
@@ -55,8 +55,16 @@
         const nameEl = document.getElementById('chatHeaderName');
         const subEl = document.getElementById('chatHeaderSub');
         const avEl = document.getElementById('chatHeaderAvatar');
+
         if (nameEl) nameEl.textContent = headerInfo.name || 'Chat';
-        if (subEl) subEl.textContent = headerInfo.petName ? `About ${headerInfo.petName}` : '';
+
+        if (subEl) {
+            // Show "Location • About {pet}"
+            const loc = headerInfo.location ? headerInfo.location : '';
+            const pet = headerInfo.petName ? `About ${headerInfo.petName}` : '';
+            subEl.textContent = loc && pet ? `${loc} • ${pet}` : (loc || pet || '');
+        }
+
         if (avEl) {
             avEl.innerHTML = '';
             if (headerInfo.avatar) {
@@ -67,6 +75,13 @@
                 img.style.height = '100%';
                 img.style.objectFit = 'cover';
                 avEl.appendChild(img);
+            } else {
+                // Fallback: initial badge
+                const span = document.createElement('span');
+                span.style.fontWeight = '700';
+                span.style.color = '#374151';
+                span.textContent = (headerInfo.name || 'U').trim().charAt(0).toLowerCase();
+                avEl.appendChild(span);
             }
         }
     }
@@ -147,13 +162,17 @@
         input.value = '';
     }
 
-    // Entry A: details page
+    // Entry A: opened from pet details (non-owner)
     const btn = document.getElementById('chatWithOwnerBtn');
     if (btn) {
         currentUserId = Number(btn.dataset.currentUserId);
         petId = Number(btn.dataset.petId);
-        // optional: set header if you have owner's info in data-*
-        headerInfo = {name: 'Owner', avatar: null, petName: null};
+        const ownerName = btn.dataset.ownerName || 'Owner';
+        const ownerAvatar = btn.dataset.ownerAvatar || null;
+        const ownerLocation = btn.dataset.ownerLocation || '';
+        const petName = btn.dataset.petName || null;
+
+        headerInfo = {name: ownerName, avatar: ownerAvatar, location: ownerLocation, petName: petName};
 
         btn.addEventListener('click', async () => {
             try {
@@ -167,12 +186,12 @@
         });
     }
 
-    // Entry B: inbox — now accepts header info
+    // Entry B: from inbox (kept for completeness)
     window.PetChat.openThread = async function (threadIdArg, currentUserIdArg, header) {
         try {
             currentUserId = Number(currentUserIdArg);
             threadId = Number(threadIdArg);
-            headerInfo = Object.assign({name: 'Chat', avatar: null, petName: null}, header || {});
+            headerInfo = Object.assign({name: 'Chat', avatar: null, petName: null, location: ''}, header || {});
             await loadHistory();
             connectStomp();
             showWidget();

@@ -86,11 +86,11 @@ public class PetController {
         return "pet/list";
     }
 
-    @GetMapping({"/{id}", "/pets/{id}"})
+    @GetMapping({"/{id}"})
     public String viewOrDetailPet(@PathVariable Long id, Model model) {
         PetResponseDto pet = petService.getById(id);
         Long currentUserId = authUtils.getLoggedInUser().getId();
-        boolean isOwner = currentUserId != null && currentUserId.equals(pet.getOwner().getId());
+        boolean isOwner = currentUserId.equals(pet.getOwner().getId());
 
         boolean hasActiveRequest = false;
         PetRequestStatus activeReqStatus = null;
