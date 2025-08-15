@@ -1,3 +1,6 @@
+/* === Floating Pet Chat (mini widget) === */
+
+/* Container */
 .chat-widget {
     position: fixed;
     right: 16px;
@@ -10,10 +13,11 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden; /* clip internals */
     z-index: 9999;
 }
 
+/* Header */
 .chat-header {
     display: flex;
     align-items: center;
@@ -24,20 +28,121 @@
     font-weight: 600;
 }
 
-.chat-messages {
-    padding: 10px;
-    gap: 8px;
+.chat-header .left {
     display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+    align-items: center;
+    gap: 10px;
 }
 
+.chat-header .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-header .sub {
+    font-weight: 400;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.chat-close {
+    background: transparent;
+    border: 0;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Messages area (no horizontal scroll; gutter reserved for vertical bar) */
+.chat-messages {
+    display: block; /* rows control layout */
+    padding: 10px 14px 10px 6px; /* top | right | bottom | left (small left gutter) */
+    overflow-y: auto;
+    overflow-x: hidden; /* important: no horizontal scrollbar */
+    scrollbar-gutter: stable both-edges;
+    background: #fff;
+}
+
+/* === Messenger-style rows/bubbles/times === */
+
+/* Row aligns the whole message left/right */
+.msg-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-start; /* top-align */
+    margin: 6px 0;
+}
+
+.msg-row.me {
+    justify-content: flex-end;
+}
+
+.msg-row.other {
+    justify-content: flex-start;
+}
+
+.msg-row.compact {
+    margin: 3px 0;
+}
+
+/* tighter when same sender */
+
+/* Wrap stacks bubble + time; shrinks to content width */
+.msg-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 3px; /* bubble <-> time */
+    max-width: 82%; /* prevent ultra-wide bubbles */
+    min-width: auto; /* no forced indent for short bubbles */
+    overflow: hidden; /* defensive clipping */
+}
+
+/* Bubble */
+.msg-bubble {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    padding: 8px 10px;
+    border-radius: 12px;
+    line-height: 1.35;
+    background: #f1f5f9; /* incoming */
+    white-space: pre-wrap; /* respect user newlines */
+    word-break: normal;
+    overflow-wrap: anywhere; /* break very long tokens/URLs */
+    margin: 0;
+}
+
+.msg-bubble.me {
+    background: #dcfce7;
+}
+
+/* outgoing */
+
+/* Timestamp under bubble */
+.msg-time {
+    font-size: 11px;
+    color: #9aa3af;
+    line-height: 1;
+    text-align: left;
+}
+
+.msg-row.me .msg-time {
+    text-align: right;
+}
+
+/* Legacy simple bubbles (backwards compat) */
 .msg {
     max-width: 80%;
     padding: 8px 10px;
     border-radius: 10px;
     line-height: 1.3;
-    word-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .msg.me {
@@ -50,11 +155,13 @@
     background: #f1f5f9;
 }
 
+/* Composer */
 .chat-input {
     display: flex;
     gap: 8px;
     padding: 10px;
     border-top: 1px solid #e5e7eb;
+    background: #fafafa;
 }
 
 .chat-input textarea {
@@ -64,6 +171,13 @@
     padding: 8px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
+    outline: none;
+    background: #fff;
+}
+
+.chat-input textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
 }
 
 .chat-input button {
@@ -72,13 +186,6 @@
     border-radius: 8px;
     cursor: pointer;
     background: #2563eb;
-    color: white;
+    color: #fff;
     font-weight: 600;
-}
-
-.chat-close {
-    background: transparent;
-    border: 0;
-    font-size: 18px;
-    cursor: pointer;
 }

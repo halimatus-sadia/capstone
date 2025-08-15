@@ -10,4 +10,8 @@ public class MultipartUtils {
     public static boolean isEmpty(MultipartFile file) {
         return file == null || file.isEmpty();
     }
+
+    public static boolean isNonEmpty(MultipartFile file) {
+        return !isEmpty(file);
+    }
 }
