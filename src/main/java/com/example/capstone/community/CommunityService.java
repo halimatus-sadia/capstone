@@ -84,6 +84,10 @@ public class CommunityService {
             throw new IllegalStateException("Insufficient permission.");
     }
 
+    public Community findById(Long id) {
+        return communityRepo.findById(id).orElseThrow(() -> new RuntimeException("Community not found!"));
+    }
+
     private String emptyToNull(String s) {
         return (s == null || s.isBlank()) ? null : s;
     }

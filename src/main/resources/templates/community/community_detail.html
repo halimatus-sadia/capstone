@@ -125,6 +125,7 @@
                 document.getElementById('memberCount').textContent = j.memberCount;
                 joinBtn.textContent = j.joined ? 'Joined' : 'Join';
                 joinBtn.classList.toggle('primary', j.joined);
+                window.location.reload();
             }
         });
     }

@@ -81,10 +81,7 @@ public class CommunityController {
                          @RequestParam(defaultValue = "10") int size,
                          Model model) {
 
-        Community c = communityService.browse(null, null, null, PageRequest.of(0, 1))
-                .map(x -> x).getContent().stream().filter(x -> x.getId().equals(id)).findFirst()
-                .orElseThrow(); // swap for repo.findById(id) in your code
-
+        Community c = communityService.findById(id);
         var posts = communityPostService.pageByCommunity(id, PageRequest.of(page, size));
         Long userId = null;
         try {
