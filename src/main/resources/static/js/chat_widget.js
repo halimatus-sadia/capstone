@@ -130,7 +130,7 @@
         return threadId;
     }
 
-    async function loadHistory(limit = 200) {
+    async function loadHistory(limit = 500) {
         createUI();
         const res = await fetch(`/chat/${threadId}/messages?limit=${limit}`);
         const data = await res.json();
