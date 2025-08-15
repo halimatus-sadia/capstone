@@ -1,6 +1,8 @@
 package com.example.capstone.pet.chat;
 
+import com.example.capstone.auth.User;
 import com.example.capstone.auth.UserRepository;
+import com.example.capstone.pet.Pet;
 import com.example.capstone.pet.PetRepository;
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,8 @@ public class MyChatController {
 
     private final ChatThreadRepository threadRepo;
     private final ChatMessageRepository msgRepo;
-    private final UserRepository userRepo;
-    private final PetRepository petRepository;
+    private final UserRepository userRepo;   // see repo snippet below
+    private final PetRepository petRepository;  // your existing repo
     private final AuthUtils authUtils;
 
     @GetMapping("/chats")
@@ -44,10 +46,15 @@ public class MyChatController {
     private Row buildRow(ChatThread t, Long me, boolean iAmOwner) {
         Long otherId = iAmOwner ? t.getUserId() : t.getOwnerId();
 
-        var other = userRepo.findSummaryById(otherId).orElse(new UserSummary(otherId, "User " + otherId, null));
-        var pet = petRepository.findSummaryById(t.getPetId())
-                .map(p -> new PetSummary(p.id(), p.name(), p.imageUrl()))
-                .orElse(new PetSummary(t.getPetId(), "Pet " + t.getPetId(), null));
+        // --- Other user (safe fallbacks) ---
+        User other = userRepo.findById(otherId).orElse(null);
+        String otherName = (other != null && other.getName() != null) ? other.getName() : ("user" + otherId);
+        String otherAvatar = (other != null) ? other.getProfileImageFilePath() : null;
+
+        // --- Pet (safe fallbacks) ---
+        Pet pet = petRepository.findById(t.getPetId()).orElse(null);
+        String petName = (pet != null && pet.getName() != null) ? pet.getName() : ("Pet " + t.getPetId());
+        String petImage = (pet != null) ? "image" : null; // TODO: handle image
 
         var last = msgRepo.findTop1ByThreadOrderBySentAtDesc(t);
         String preview = (last != null) ? last.getContent() : "";
@@ -55,17 +62,15 @@ public class MyChatController {
 
         return new Row(
                 t.getId(),
-                iAmOwner ? "OWNER" : "USER",
-                pet.id(), pet.name(), pet.imageUrl(),
-                other.getId(), other.getName(), other.getAvatarUrl(),
+                petName, petImage,
+                otherId, otherName, otherAvatar,
                 preview, lastAt
         );
     }
 
     public record Row(
             Long threadId,
-            String role,
-            Long petId, String petName, String petImageUrl,
+            String petName, String petImageUrl,
             Long otherUserId, String otherName, String otherAvatarUrl,
             String lastMessage, LocalDateTime lastAt
     ) {

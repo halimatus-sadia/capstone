@@ -1,0 +1,272 @@
+/* Reset-ish */
+* {
+    box-sizing: border-box;
+}
+
+/* Layout sizing — WIDER and stable */
+:root {
+    --bg: #fff;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --soft: #f3f4f6;
+    --brand: #2563eb;
+}
+
+.messenger {
+    max-width: 1300px;       /* was 1280px — now much wider */
+    width: 95%;              /* almost full width on large screens */
+    margin: 24px auto;
+    height: calc(100vh - 120px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg);
+    display: grid;
+    grid-template-columns: 450px 1fr; /* slightly wider sidebar */
+}
+
+
+/* LEFT */
+.sidebar {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: #fafafa;
+    min-height: 0; /* allow children to shrink */
+}
+
+.search {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    background: #f9fafb;
+}
+
+.search input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    outline: none;
+}
+
+.search input:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .2);
+}
+
+.thread-list {
+    overflow: auto;
+    flex: 1 1 auto;
+    min-height: 0; /* scrollable list */
+}
+
+.item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fff;
+}
+
+.item:hover {
+    background: #f6f8ff;
+}
+
+.item.active {
+    background: #eef2ff;
+}
+
+.avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-fallback {
+    font-weight: 700;
+    color: #374151;
+}
+
+.meta {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.time {
+    color: var(--muted);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+
+.bottom {
+    color: var(--muted);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pettag {
+    font-size: 12px;
+    background: #eef2ff;
+    color: #3730a3;
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 8px;
+}
+
+/* RIGHT */
+.conversation {
+    display: grid;
+    grid-template-rows: 68px 1fr 76px;
+    min-height: 0; /* critical so middle row can scroll */
+}
+
+.conv-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+}
+
+.conv-header .left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.conv-header .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conv-header .name {
+    font-weight: 700;
+}
+
+.conv-header .sub {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* SCROLLABLE messages area */
+.messages {
+    position: relative;
+    overflow: auto;
+    background: #fff;
+    padding: 12px 0;
+    min-height: 0; /* critical for grid scroll */
+}
+
+.empty-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--muted);
+}
+
+/* Bubbles */
+.row {
+    display: flex;
+    padding: 0 16px;
+    margin: 6px 0;
+}
+
+.row.me {
+    justify-content: flex-end;
+}
+
+.msg {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 14px;
+    line-height: 1.35;
+    display: inline-block;
+    word-wrap: break-word;
+    background: #f1f5f9;
+}
+
+.msg.me {
+    background: #dcfce7;
+}
+
+/* Composer — always visible */
+.composer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    background: #fafafa;
+}
+
+.composer textarea {
+    flex: 1 1 auto;
+    height: 46px;
+    resize: none;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    outline: none;
+    background: #fff;
+}
+
+.composer textarea:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
+}
+
+.btn-send {
+    flex: 0 0 auto;
+    height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--brand);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Tweak divider between columns */
+.sidebar, .conversation {
+    background-clip: padding-box;
+}
