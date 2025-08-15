@@ -35,7 +35,9 @@
                 <div class="meta">
                     <div class="top">
                         <div class="name" th:text="${r.otherName}">user</div>
-                        <div class="time" th:text="${#temporals.format(r.lastAt, 'd MMM, HH:mm')}">14 Aug, 19:41</div>
+                        <div class="time" th:text="${#temporals.format(r.lastAt, 'd MMM, h:mm a')}">
+                            14 Aug, 7:41 PM
+                        </div>
                     </div>
                     <div class="bottom">
                         <span class="preview" th:text="${#strings.abbreviate(r.lastMessage, 40)}">Last message…</span>

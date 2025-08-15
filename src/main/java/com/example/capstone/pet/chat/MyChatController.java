@@ -6,9 +6,12 @@ import com.example.capstone.pet.Pet;
 import com.example.capstone.pet.PetRepository;
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
@@ -20,18 +23,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyChatController {
 
+    @Value("${minio.url}")
+    private String minioUrl;
+
+    @Value("${minio.bucket.name}")
+    private String bucketName;
+
+
     private final ChatThreadRepository threadRepo;
     private final ChatMessageRepository msgRepo;
-    private final UserRepository userRepo;   // see repo snippet below
-    private final PetRepository petRepository;  // your existing repo
+    private final UserRepository userRepo;
+    private final PetRepository petRepository;
     private final AuthUtils authUtils;
 
     @GetMapping("/chats")
     public String myChats(Model model) {
         Long me = authUtils.getLoggedInUser().getId();
 
-        var ownerPage = threadRepo.findByOwnerIdOrderByCreatedAtDesc(me, PageRequest.of(0, 200));
-        var userPage = threadRepo.findByUserIdOrderByCreatedAtDesc(me, PageRequest.of(0, 200));
+        var ownerPage = threadRepo.findByOwnerIdOrderByCreatedAtDesc(me, Pageable.unpaged());
+        var userPage = threadRepo.findByUserIdOrderByCreatedAtDesc(me, Pageable.unpaged());
 
         List<Row> rows = new ArrayList<>();
         ownerPage.getContent().forEach(t -> rows.add(buildRow(t, me, true)));
@@ -49,7 +59,8 @@ public class MyChatController {
         // --- Other user (safe fallbacks) ---
         User other = userRepo.findById(otherId).orElse(null);
         String otherName = (other != null && other.getName() != null) ? other.getName() : ("user" + otherId);
-        String otherAvatar = (other != null) ? other.getProfileImageFilePath() : null;
+        String otherAvatar = (other != null && StringUtils.hasText(other.getProfileImageFilePath())) ?
+                minioUrl + "/" + bucketName + "/" + other.getProfileImageFilePath() : null;
 
         // --- Pet (safe fallbacks) ---
         Pet pet = petRepository.findById(t.getPetId()).orElse(null);
