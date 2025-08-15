@@ -19,7 +19,7 @@
                 <a href="/pets/requests">Requests</a>
                 <a href="/pets/create" class="">List a Pet</a>
                 <div th:if="${#authorization.expr('isAuthenticated()')}">
-                    <a th:href="@{/profile}" class="btn btn-outline">My Profile</a>
+                    <a th:href="@{/profile}" class="">My Profile</a>
                 </div>
                 <a th:href="@{/chats}">My Chats</a>
                 <a th:href="@{/logout}">Logout</a>
