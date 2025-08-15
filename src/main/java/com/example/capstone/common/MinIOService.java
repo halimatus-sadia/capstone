@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -47,20 +48,20 @@ public class MinIOService {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
                 // Define the bucket policy for public read access
                 String policyJson = "{\n" +
-                                    "  \"Version\": \"2012-10-17\",\n" +
-                                    "  \"Statement\": [\n" +
-                                    "    {\n" +
-                                    "      \"Effect\": \"Allow\",\n" +
-                                    "      \"Principal\": \"*\",\n" +
-                                    "      \"Action\": [\n" +
-                                    "        \"s3:GetObject\"\n" +
-                                    "      ],\n" +
-                                    "      \"Resource\": [\n" +
-                                    "        \"arn:aws:s3:::" + bucketName + "/*\"\n" +
-                                    "      ]\n" +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}";
+                        "  \"Version\": \"2012-10-17\",\n" +
+                        "  \"Statement\": [\n" +
+                        "    {\n" +
+                        "      \"Effect\": \"Allow\",\n" +
+                        "      \"Principal\": \"*\",\n" +
+                        "      \"Action\": [\n" +
+                        "        \"s3:GetObject\"\n" +
+                        "      ],\n" +
+                        "      \"Resource\": [\n" +
+                        "        \"arn:aws:s3:::" + bucketName + "/*\"\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}";
                 minioClient.setBucketPolicy(SetBucketPolicyArgs.builder()
                         .bucket(bucketName)
                         .config(policyJson)
@@ -96,5 +97,12 @@ public class MinIOService {
         } catch (Exception e) {
             throw new RuntimeException("Error deleting file: " + e.getMessage(), e);
         }
+    }
+
+    public String constructFullUrl(String objectName) {
+        if (StringUtils.hasText(objectName)) {
+            return minioUrl + "/" + bucketName + "/" + objectName;
+        }
+        return null;
     }
 }

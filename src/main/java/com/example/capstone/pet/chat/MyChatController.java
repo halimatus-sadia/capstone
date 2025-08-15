@@ -2,12 +2,11 @@ package com.example.capstone.pet.chat;
 
 import com.example.capstone.auth.User;
 import com.example.capstone.auth.UserRepository;
+import com.example.capstone.common.MinIOService;
 import com.example.capstone.pet.Pet;
 import com.example.capstone.pet.PetRepository;
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,19 +21,12 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class MyChatController {
-
-    @Value("${minio.url}")
-    private String minioUrl;
-
-    @Value("${minio.bucket.name}")
-    private String bucketName;
-
-
     private final ChatThreadRepository threadRepo;
     private final ChatMessageRepository msgRepo;
     private final UserRepository userRepo;
     private final PetRepository petRepository;
     private final AuthUtils authUtils;
+    private final MinIOService minIOService;
 
     @GetMapping("/chats")
     public String myChats(Model model) {
@@ -60,7 +52,7 @@ public class MyChatController {
         User other = userRepo.findById(otherId).orElse(null);
         String otherName = (other != null && other.getName() != null) ? other.getName() : ("user" + otherId);
         String otherAvatar = (other != null && StringUtils.hasText(other.getProfileImageFilePath())) ?
-                minioUrl + "/" + bucketName + "/" + other.getProfileImageFilePath() : null;
+                minIOService.constructFullUrl(other.getProfileImageFilePath()) : null;
 
         // --- Pet (safe fallbacks) ---
         Pet pet = petRepository.findById(t.getPetId()).orElse(null);
