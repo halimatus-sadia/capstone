@@ -20,13 +20,25 @@
     let subscription = null;
     let currentThreadId = null;
 
-    // Metadata
-    let otherName = null, otherAvatar = null, petName = null;
+    // Cache last sender to compact consecutive messages
+    let lastSenderId = null;
 
-    // Helpers
-    function clearConversation() {
-        msgBox.innerHTML = '';
-        if (emptyHint) emptyHint.style.display = 'block';
+    // --- util: format time in AM/PM ---
+    function formatTime(isoLike) {
+        if (!isoLike) return '';
+        const d = new Date(isoLike.replace(' ', 'T'));
+        if (isNaN(d.getTime())) return '';
+        const now = new Date();
+        const sameDay =
+            d.getFullYear() === now.getFullYear() &&
+            d.getMonth() === now.getMonth() &&
+            d.getDate() === now.getDate();
+
+        const hm = d.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
+        if (sameDay) return hm; // e.g., "9:35 PM"
+
+        const dayMonth = d.toLocaleDateString('en-US', {day: '2-digit', month: 'short'}); // "14 Aug"
+        return `${dayMonth}, ${hm}`; // "14 Aug, 9:35 PM"
     }
 
     function setHeader(name, avatar, pet) {
@@ -54,22 +66,41 @@
     }
 
     function appendMessage(m) {
-        const row = document.createElement('div');
         const mine = Number(m.senderId) === me;
-        row.className = 'row' + (mine ? ' me' : '');
+
+        const row = document.createElement('div');
+        row.className = 'row' + (mine ? ' me' : ' other');
+        if (lastSenderId === m.senderId) row.classList.add('compact');  // tighter stack
+
+        const wrap = document.createElement('div');
+        wrap.className = 'wrap';
+
         const bubble = document.createElement('div');
         bubble.className = 'msg' + (mine ? ' me' : '');
-        bubble.textContent = m.content;
-        row.appendChild(bubble);
+        // Trim trailing whitespace/newlines to avoid extra vertical space
+        const cleaned = (m.content || '').replace(/\s+$/g, '');
+        bubble.textContent = cleaned;
+
+        const meta = document.createElement('div');
+        meta.className = 'msg-meta';
+        meta.textContent = formatTime(m.sentAt);
+
+        wrap.appendChild(bubble);
+        wrap.appendChild(meta);
+        row.appendChild(wrap);
+
         msgBox.appendChild(row);
-        msgBox.scrollTop = msgBox.scrollHeight;   // keep bottom in view
+        msgBox.scrollTop = msgBox.scrollHeight;
         if (emptyHint) emptyHint.style.display = 'none';
+
+        lastSenderId = m.senderId;
     }
 
     async function loadHistory(threadId) {
         const res = await fetch(`/chat/${threadId}/messages?limit=500`);
         const data = await res.json();
         msgBox.innerHTML = '';
+        lastSenderId = null; // reset grouping
         if (!Array.isArray(data) || data.length === 0) {
             if (emptyHint) emptyHint.style.display = 'block';
             return;
@@ -104,23 +135,20 @@
     }
 
     async function openThreadFromEl(el) {
-        // active state
         document.querySelectorAll('.thread-row').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
 
-        // meta
         currentThreadId = Number(el.dataset.threadId);
-        otherName = el.dataset.otherName || null;
-        otherAvatar = el.dataset.otherAvatar || null;
-        petName = el.dataset.petName || null;
+        const otherName = el.dataset.otherName || null;
+        const otherAvatar = el.dataset.otherAvatar || null;
+        const petName = el.dataset.petName || null;
 
         setHeader(otherName, otherAvatar, petName);
         await loadHistory(currentThreadId);
-
         ensureConnected(() => resubscribe(currentThreadId));
     }
 
-    // Click handlers for rows
+    // Click on a thread
     list.addEventListener('click', (e) => {
         const row = e.target.closest('.thread-row');
         if (!row) return;
@@ -147,7 +175,7 @@
             content: text
         }));
         input.value = '';
-        // don't optimistically render; rely on server echo to avoid dupes
+        // rely on server echo (avoids duplicates)
     }
 
     sendBtn.addEventListener('click', send);
@@ -158,7 +186,7 @@
         }
     });
 
-    // Preselect first thread (optional)
+    // Preselect first thread
     if (boot.preselectFirst) {
         const first = list.querySelector('.thread-row');
         if (first) openThreadFromEl(first).catch(console.error);
