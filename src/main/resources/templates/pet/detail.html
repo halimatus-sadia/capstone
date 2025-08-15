@@ -72,9 +72,12 @@
 
         <!-- Placeholder: if you have owner profile or message flow -->
         <section id="contact" class="contact-card">
-            <h3>Owner</h3>
-            <p class="muted">For privacy, direct contact/messaging can be enabled later.</p>
-            <button class="btn btn-soft" disabled>Message (coming soon)</button>
+            <!-- Chat trigger (show only to non-owners) -->
+            <button id="chatWithOwnerBtn" class="btn btn-outline"
+                    th:if="${!isOwner}"
+                    th:attr="data-pet-id=${pet.id},data-current-user-id=${currentUserId}">
+                Chat with owner
+            </button>
         </section>
 
         <!-- Request Section -->
@@ -126,17 +129,10 @@
 
         <!-- detail.html -->
         <div class="cta-row">
-            <a class="btn btn-outline" href="#contact">Contact owner</a>
-            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
+            <!--            <a class="btn btn-outline" href="#contact">Contact owner</a>-->
+            <!--            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>-->
             <a class="btn" th:if="${isOwner}" th:href="@{'/pets/' + ${pet.id} + '/edit'}">Edit</a>
         </div>
-
-        <!-- Chat trigger (show only to non-owners) -->
-        <button id="chatWithOwnerBtn" class="btn btn-primary"
-                th:if="${!isOwner}"
-                th:attr="data-pet-id=${pet.id},data-current-user-id=${currentUserId}">
-            Chat with owner
-        </button>
 
         <!-- Chat widget root -->
         <div id="chat-widget-root"></div>
