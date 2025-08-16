@@ -24,18 +24,19 @@ public abstract class UserMapper {
     @Autowired
     protected UserRepository userRepository;
 
+    @Mapping(target = "profileImageFilePath", expression = "java(minIOService.constructFullUrl(entity.getProfileImageFilePath()))")
     public abstract UserResponse toResponse(User entity);
 
-    @Mapping(target = "profileImageFilePath", expression = "java(getProfileImageFilePath(request.getImage()))")
+    @Mapping(target = "profileImageFilePath", expression = "java(getProfileImageFilePath(request.getImage(), user.getProfileImageFilePath()))")
     @Mapping(target = "password", expression = "java(getPassword(request, user.getPassword()))")
     @Mapping(target = "username", expression = "java(getUsername(request))")
     public abstract void updateEntity(UserUpdateRequest request, @MappingTarget User user);
 
-    protected String getProfileImageFilePath(MultipartFile image) {
+    protected String getProfileImageFilePath(MultipartFile image, String existingFilePath) {
         if (!MultipartUtils.isEmpty(image)) {
             return this.minIOService.uploadFile(image);
         }
-        return null;
+        return existingFilePath;
     }
 
     protected String getUsername(UserUpdateRequest request) {

@@ -1,8 +1,7 @@
 package com.example.capstone.auth;
 
 import lombok.Data;
-
-import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UserResponse {
@@ -15,4 +14,5 @@ public class UserResponse {
     // for UI only
     private String newPassword;
     private String confirmPassword;
+    private MultipartFile image;
 }

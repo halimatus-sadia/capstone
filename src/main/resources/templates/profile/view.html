@@ -6,6 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link th:href="@{/css/profile.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        /* Minimal avatar style for image display */
+        .avatar-img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+        }
+
+        .avatar-circle {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #374151;
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+        }
+
+        @media (max-width: 480px) {
+            .avatar-img, .avatar-circle {
+                width: 72px;
+                height: 72px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
@@ -13,9 +44,19 @@
 <main class="container">
     <div class="card p-24 mt-24">
         <div class="flex-row gap-16 align-center">
-            <!-- Simple avatar with initials -->
+            <!-- If image exists, show it -->
+            <img class="avatar-img"
+                 th:if="${profile.profileImageFilePath != null && !#strings.isEmpty(profile.profileImageFilePath)}"
+                 th:src="${profile.profileImageFilePath}"
+                 alt="Profile photo"/>
+
+            <!-- Otherwise, fallback to initials -->
             <div class="avatar-circle"
-                 th:text="${#strings.substring(profile.name,0,1).toUpperCase()} + ${#strings.substring(profile.username,0,1).toUpperCase()}"></div>
+                 th:unless="${profile.profileImageFilePath != null && !#strings.isEmpty(profile.profileImageFilePath)}"
+                 th:text="${#strings.substring(profile.name,0,1).toUpperCase()} + ${#strings.substring(profile.username,0,1).toUpperCase()}">
+                RU
+            </div>
+
             <div>
                 <h1 class="h2" th:text="${profile.name}">Name</h1>
                 <p class="muted" th:text="'@' + ${profile.username}">@username</p>
