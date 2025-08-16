@@ -18,7 +18,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
-        String redirectUrl = "/"; // Default URL after login
+        String redirectUrl = "/pets"; // Default URL after login
         String next = request.getParameter("next");
         if (StringUtils.hasText(next)) {
             redirectUrl = URLDecoder.decode(next, StandardCharsets.UTF_8);
