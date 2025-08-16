@@ -72,19 +72,34 @@
 
         <!-- Placeholder: if you have owner profile or message flow -->
         <section id="contact" class="contact-card" th:if="${!isOwner}">
-            <!-- Chat trigger (show only to non-owners) -->
-            <button id="chatWithOwnerBtn" class="btn btn-outline"
-                    th:attr="
+            <div class="card owner-info">
+                <div class="owner-profile">
+                    <div class="avatar" th:if="${pet.owner.profileImageFilePath != null}">
+                        <img th:src="@{${pet.owner.profileImageFilePath}}" alt="Owner Avatar">
+                    </div>
+                    <div class="img-skeleton avatar" th:if="${pet.owner.profileImageFilePath == null}"></div>
+
+                    <div class="owner-meta">
+                        <h4 th:text="${pet.owner.name != null ? pet.owner.name : 'Owner'}">Owner</h4>
+                        <p class="muted" th:text="${pet.location != null ? pet.location : 'Unknown'}">Dhaka</p>
+                    </div>
+                </div>
+
+                <div class="chat-action">
+                    <button id="chatWithOwnerBtn" class="btn btn-outline"
+                            th:attr="
                       data-pet-id=${pet.id},
                       data-pet-name=${pet.name},
                       data-current-user-id=${currentUserId},
                       data-owner-name=${pet.owner.name != null ? pet.owner.name : 'Owner'},
                       data-owner-avatar=${pet.owner.profileImageFilePath},
                       data-owner-location=${pet.location != null ? pet.location : 'Unknown'}">
-                Chat with owner
-            </button>
-
+                        Chat with owner
+                    </button>
+                </div>
+            </div>
         </section>
+
 
         <!-- Request Section -->
         <section class="request-card">
