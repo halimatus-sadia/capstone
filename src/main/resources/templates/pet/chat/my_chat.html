@@ -64,7 +64,7 @@
             <div class="empty-hint" id="emptyHint">Select a conversation on the left to start chatting.</div>
         </div>
 
-        <footer class="composer">
+        <footer class="composer" th:if="${!rows.isEmpty()}">
             <textarea id="convInput" placeholder="Type a message..."></textarea>
             <button id="convSend" class="btn-send">Send</button>
         </footer>
