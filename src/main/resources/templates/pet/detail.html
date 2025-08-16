@@ -99,7 +99,7 @@
             <!-- Case 2: Non-owner but has an active request -->
             <div th:if="${!isOwner and hasActiveRequest}">
                 <p class="muted">
-                    You already have a request for this pet that is
+                    This pet has
                     <b>
                 <span class="chip"
                       th:classappend="${activeReqStatus?.name() == 'PENDING'} ? ' chip-warn' :
@@ -107,7 +107,7 @@
                       th:text="${#strings.capitalize(activeReqStatus?.name()?.toLowerCase())}">
                     Pending
                 </span>
-                    </b>.
+                    </b> request.
                     New requests are disabled.
                 </p>
                 <button class="btn btn-soft" disabled>Request Disabled</button>
