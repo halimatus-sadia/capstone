@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 /* heights for sticky header + footer */
 :root {
     --bg: #f9fafb;

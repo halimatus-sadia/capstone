@@ -2,28 +2,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
+
+<!--
+  Entry point: pass a postId.
+  We load ONLY top-level comments here,
+  then render the tree via a recursive fragment that walks c.replies.
+-->
 <th:block th:fragment="commentsTree(postId)">
-    <div th:with="tops=${@postCommentRepository.findTopLevelWithReplies(postId)}">
-        <div th:each="c : ${tops}" style="margin:8px 0">
-            <div class="meta"
-                 th:text="${#temporals.format(c.createdAt,'dd MMM yyyy, h:mm a')} + ' • ' + ${c.author.name}">meta</div>
-            <div th:text="${c.content}"></div>
+    <div th:with="tops=${@postCommentRepository.findTopLevel(postId)}">
+        <div th:replace="~{community/fragments :: renderComments(${tops}, 0)}"></div>
+    </div>
+</th:block>
 
-            <!-- reply form -->
-            <form class="comment-form" th:attr="data-post-id=${c.post.id}" style="margin-top:6px">
-                <input type="hidden" name="parentId" th:value="${c.id}">
-                <textarea class="input" rows="1" placeholder="Reply..."></textarea>
-                <button class="btn" type="submit">Reply</button>
-            </form>
+<!--
+  Recursive fragment: render a list of comments, then recurse into their replies.
+  Params:
+    comments -> java.util.List<PostComment>
+    level    -> int (0 for top-level, increases for replies)
+-->
+<th:block th:fragment="renderComments(comments, level)">
+    <div th:each="c : ${comments}" class="comment-node"
+         th:style="'margin-left:' + (${level} * 18) + 'px'">
+        <div class="comment-meta"
+             th:text="${#temporals.format(c.createdAt,'dd MMM yyyy, h:mm a')} + ' • ' + ${c.author.name}">
+            meta
+        </div>
 
-            <!-- replies -->
-            <div class="comment" th:each="r : ${c.replies}">
-                <div class="meta"
-                     th:text="${#temporals.format(r.createdAt,'dd MMM yyyy, h:mm a')} + ' • ' + ${r.author.name}">meta</div>
-                <div th:text="${r.content}"></div>
-            </div>
+        <div th:text="${c.content}"></div>
+
+        <!-- reply form under each node -->
+        <form class="comment-form" th:attr="data-post-id=${c.post.id}" style="margin-top:6px">
+            <input type="hidden" name="parentId" th:value="${c.id}">
+            <textarea class="input" rows="1" placeholder="Reply..."></textarea>
+            <button class="btn" type="submit">Reply</button>
+        </form>
+
+        <!-- children (replies) -->
+        <div class="comment-children" th:if="${#lists.size(c.replies) > 0}">
+            <div th:replace="~{community/fragments :: renderComments(${c.replies}, ${level}+1)}"></div>
         </div>
     </div>
 </th:block>
+
 </body>
 </html>

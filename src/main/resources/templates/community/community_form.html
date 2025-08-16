@@ -1,4 +1,3 @@
-<!-- src/main/resources/templates/community/community_form.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
@@ -6,38 +5,237 @@
     <title th:text="${communityId}!=null ? 'Edit Community' : 'Create Community'">Community</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
-    <style>.form {
-        display: grid;
-        gap: 12px;
-        max-width: 720px
-    }</style>
+    <style>
+        .page-wrap {
+            padding: 22px 0
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, .07);
+            overflow: hidden
+        }
+
+        .card-head {
+            padding: 16px 18px;
+            border-bottom: 1px solid #eef2f7;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .card-body {
+            padding: 18px
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns:1fr
+        }
+
+        .form-row {
+            display: grid;
+            gap: 12px;
+            grid-template-columns:1fr 1fr
+        }
+
+        .label {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            display: block
+        }
+
+        .input, .textarea, .select {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px 12px;
+            outline: none
+        }
+
+        .textarea {
+            min-height: 140px;
+            resize: vertical
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #111827;
+            background: #111827;
+            color: #fff;
+            font-weight: 600
+        }
+
+        .btn.ghost {
+            background: #fff;
+            color: #111827;
+            border-color: #d1d5db
+        }
+
+        /* Cover preview */
+        .cover-wrap {
+            display: grid;
+            grid-template-columns:220px 1fr;
+            gap: 14px;
+            align-items: start
+        }
+
+        .cover {
+            aspect-ratio: 16/9;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden
+        }
+
+        .cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            font-size: 12px;
+            color: #475569
+        }
+
+        @media (max-width: 720px) {
+            .cover-wrap {
+                grid-template-columns:1fr
+            }
+
+            .form-row {
+                grid-template-columns:1fr
+            }
+        }
+    </style>
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
-<main class="container" style="padding:20px 0">
-    <h1 th:text="${communityId}!=null ? 'Edit community' : 'Create community'"></h1>
-    <form th:action="${communityId}!=null? @{'/communities/'+${communityId}} : @{/communities}"
-          method="post" th:object="${dto}" class="form">
-        <input type="hidden" th:if="${communityId}!=null" name="_method" value="post"/>
-        <div>
-            <label>Name</label>
-            <input class="input" th:field="*{name}">
-            <small th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:#dc2626"></small>
+
+<main class="container page-wrap">
+    <div class="card">
+        <div class="card-head">
+            <a th:href="@{/communities}" class="btn ghost" style="padding:8px 12px">← Back</a>
+            <h1 style="font-size:18px;margin:0"
+                th:text="${communityId}!=null ? 'Edit community' : 'Create community'"></h1>
         </div>
-        <div>
-            <label>Description</label>
-            <textarea class="input" th:field="*{description}" rows="5"></textarea>
+
+        <div class="card-body">
+            <form th:action="${communityId}!=null? @{'/communities/'+${communityId}} : @{/communities}"
+                  method="post" th:object="${dto}" class="form-grid" id="communityForm">
+                <input type="hidden" th:if="${communityId}!=null" name="_method" value="post"/>
+
+                <!-- Name -->
+                <div>
+                    <label class="label">Community name</label>
+                    <input class="input" th:field="*{name}" placeholder="e.g., Dhaka Cat Lovers">
+                    <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="label">Description</label>
+                    <textarea class="textarea" th:field="*{description}"
+                              placeholder="What is this community about? Rules, vibe, etc."></textarea>
+                    <div class="hint">Keep it friendly and informative. You can edit later.</div>
+                </div>
+
+                <!-- Category & Location -->
+                <div class="form-row">
+                    <div>
+                        <label class="label">Category</label>
+                        <input class="input" th:field="*{category}" placeholder="e.g., Cats, Rescue, Adoption">
+                    </div>
+                    <div>
+                        <label class="label">Location</label>
+                        <input class="input" th:field="*{location}" placeholder="e.g., Dhaka">
+                    </div>
+                </div>
+
+                <!-- Cover -->
+                <div class="cover-wrap">
+                    <div class="cover" id="coverPreview">
+                        <span th:if="${dto.coverImageUrl == null or dto.coverImageUrl.isBlank()}" style="color:#94a3b8">Cover image preview</span>
+                        <img th:if="${dto.coverImageUrl != null and !dto.coverImageUrl.isBlank()}"
+                             th:src="${dto.coverImageUrl}" alt="">
+                    </div>
+                    <div>
+                        <label class="label">Cover image URL</label>
+                        <input class="input" th:field="*{coverImageUrl}" id="coverUrl" placeholder="https://...">
+                        <div class="hint">Paste an image URL (you can host on your MinIO as with pets).</div>
+
+                        <div style="margin-top:10px">
+                            <div class="label" style="margin-bottom:8px">Tips</div>
+                            <div class="chip-row">
+                                <div class="chip">16:9 works best</div>
+                                <div class="chip">Min width 1280px</div>
+                                <div class="chip">Light subject</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+                    <a th:href="@{/communities}" class="btn ghost">Cancel</a>
+                    <button class="btn" type="submit">Save</button>
+                </div>
+            </form>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr; gap:12px">
-            <div><label>Category</label><input class="input" th:field="*{category}"></div>
-            <div><label>Location</label><input class="input" th:field="*{location}"></div>
-        </div>
-        <div>
-            <label>Cover image URL</label>
-            <input class="input" th:field="*{coverImageUrl}">
-        </div>
-        <button class="btn primary" type="submit">Save</button>
-    </form>
+    </div>
 </main>
+
+<script>
+    // live cover preview
+    const urlInput = document.getElementById('coverUrl');
+    const preview = document.getElementById('coverPreview');
+    if (urlInput && preview) {
+        urlInput.addEventListener('input', () => {
+            const val = urlInput.value.trim();
+            preview.innerHTML = '';
+            if (!val) {
+                const span = document.createElement('span');
+                span.textContent = 'Cover image preview';
+                span.style.color = '#94a3b8';
+                preview.appendChild(span);
+            } else {
+                const img = document.createElement('img');
+                img.src = val;
+                preview.appendChild(img);
+            }
+        });
+    }
+</script>
 </body>
 </html>

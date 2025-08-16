@@ -8,16 +8,14 @@ import java.util.List;
 
 @Repository
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
-
+    // Top-level comments only (parent IS NULL), ordered oldest→newest
     @Query("""
-              SELECT DISTINCT c
-              FROM PostComment c
-              LEFT JOIN FETCH c.replies r
-              WHERE c.post.id = :postId
-                AND c.parent IS NULL
+              SELECT c FROM PostComment c
+              WHERE c.post.id = :postId AND c.parent IS NULL
               ORDER BY c.createdAt ASC
             """)
-    List<PostComment> findTopLevelWithReplies(Long postId);
+    List<PostComment> findTopLevel(Long postId);
 
-    List<PostComment> findByPostIdOrderByCreatedAtAsc(Long postId);
+    // Replies for a given parent (already ordered by @OrderBy on the entity, but this is handy if you need it)
+    List<PostComment> findByParentIdOrderByCreatedAtAsc(Long parentId);
 }
