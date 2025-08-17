@@ -55,4 +55,3 @@ public class PostService {
                 .orElseThrow(() -> new EntityNotFoundException("Post not found: " + id));
     }
 }
-
