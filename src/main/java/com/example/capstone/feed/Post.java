@@ -1,4 +1,4 @@
-package com.example.capstone.post;
+package com.example.capstone.feed;
 
 import com.example.capstone.auth.User;
 import jakarta.persistence.*;
@@ -78,4 +78,3 @@ public class Post {
         return getClass().hashCode();
     }
 }
-
