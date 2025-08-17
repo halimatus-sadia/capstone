@@ -1,0 +1,92 @@
+<!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Event</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/create_event.css}" rel="stylesheet">
+    <script defer th:src="@{/js/ui.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main>
+    <section class="hero">
+        <div class="container">
+            <h1>Create Event</h1>
+            <p class="muted">Organize an exciting pet event for the community</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <form class="card form" th:action="@{/events/create}" th:object="${event}" method="post" novalidate>
+            <!-- Top split -->
+            <div class="form-grid">
+                <!-- LEFT: Core info -->
+                <div class="stack">
+                    <h2 class="form-section">Basic info</h2>
+
+                    <label class="field" for="title">
+                        <span>Title <em class="req">*</em></span>
+                        <input id="title" type="text" th:field="*{title}" placeholder="e.g., Pet Adoption Day" required>
+                        <small class="err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title is required</small>
+                    </label>
+
+                    <label class="field" for="description">
+                        <span>Description <em class="req">*</em></span>
+                        <textarea id="description" th:field="*{description}" rows="4" placeholder="Describe your event, what attendees can expect, and any important details..." required></textarea>
+                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description is required</small>
+                    </label>
+
+                    <label class="field" for="location">
+                        <span>Location <em class="req">*</em></span>
+                        <input id="location" type="text" th:field="*{location}" placeholder="e.g., Central Park, 123 Main St" required>
+                        <small class="err" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Location is required</small>
+                    </label>
+                </div>
+
+                <!-- RIGHT: Date & Time -->
+                <div class="stack">
+                    <h2 class="form-section">Date & Time</h2>
+
+                    <label class="field" for="startDateTime">
+                        <span>Start Date & Time <em class="req">*</em></span>
+                        <input id="startDateTime" type="datetime-local" th:field="*{startDateTime}" required>
+                        <small class="err" th:if="${#fields.hasErrors('startDateTime')}" th:errors="*{startDateTime}">Start date and time is required</small>
+                    </label>
+
+                    <label class="field" for="endDateTime">
+                        <span>End Date & Time <em class="req">*</em></span>
+                        <input id="endDateTime" type="datetime-local" th:field="*{endDateTime}" required>
+                        <small class="err" th:if="${#fields.hasErrors('endDateTime')}" th:errors="*{endDateTime}">End date and time is required</small>
+                    </label>
+
+                    <label class="field" for="imageUrl">
+                        <span>Image URL</span>
+                        <input id="imageUrl" type="url" th:field="*{imageUrl}" placeholder="https://example.com/image.jpg">
+                        <small class="hint muted">Optional: Add an image to make your event stand out</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Bottom actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Event</button>
+                <a href="/events" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <p th:text="${success}">Event created successfully!</p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error">
+            <p th:text="${error}">An error occurred. Please try again.</p>
+        </div>
+    </section>
+</main>
+
+<script th:src="@{/js/events-create.js}"></script>
+</body>
+</html>
