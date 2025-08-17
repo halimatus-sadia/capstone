@@ -1,7 +1,7 @@
 package com.example.capstone.event;
 
-import com.example.capstone.user.User;
-import com.example.capstone.user.UserRepository;
+import com.example.capstone.auth.User;
+import com.example.capstone.auth.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -119,3 +119,4 @@ public class EventService {
         eventRepository.save(e);
     }
 }
+
