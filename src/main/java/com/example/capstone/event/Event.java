@@ -1,6 +1,6 @@
 package com.example.capstone.event;
 
-import com.example.capstone.user.User;
+import com.example.capstone.auth.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
