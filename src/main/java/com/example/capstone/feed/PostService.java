@@ -1,41 +1,57 @@
-package com.example.capstone.feed;
+package com.example.capstone.post;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.capstone.auth.User;
+import com.example.capstone.auth.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostService {
-    @Autowired
-    private PostRepository postRepository;
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
-    public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+    public Page<Post> list(String keyword, Pageable pageable) {
+        String k = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+        return postRepository.search(k, pageable);
     }
 
-    public Post createPost(Post post) {
-        return postRepository.save(post);
+    @Transactional
+    public Post create(String creatorUsername, @Valid PostRequest req) {
+        User creator = userRepository.findByUsername(creatorUsername)
+                .orElseThrow(() -> new EntityNotFoundException("Creator not found: " + creatorUsername));
+        Post p = new Post();
+        p.setTitle(req.getTitle());
+        p.setContent(req.getContent());
+        p.setImageUrl(req.getImageUrl());
+        p.setCreatedBy(creator);
+        return postRepository.save(p);
     }
 
-    public Post updatePost(Long id, Post postDetails) {
-        return postRepository.findById(id).map(post -> {
-            post.setContent(postDetails.getContent());
-            post.setType(postDetails.getType());
-            post.setUser(postDetails.getUser());
-            return postRepository.save(post);
-        }).orElseGet(() -> {
-            postDetails.setId(id);
-            return postRepository.save(postDetails);
-        });
+    @Transactional
+    public Post update(Long postId, String requesterUsername, @Valid PostRequest req) {
+        Post p = postRepository.findByIdWithAuthor(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found: " + postId));
+        if (!p.getCreatedBy().getUsername().equals(requesterUsername)) {
+            throw new SecurityException("Only the author can update this post");
+        }
+        p.setTitle(req.getTitle());
+        p.setContent(req.getContent());
+        p.setImageUrl(req.getImageUrl());
+        return postRepository.save(p);
     }
 
-    public void deletePost(Long id) {
-        postRepository.deleteById(id);
+    public Post get(Long id) {
+        return postRepository.findByIdWithAuthor(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found: " + id));
     }
-} 
+}
