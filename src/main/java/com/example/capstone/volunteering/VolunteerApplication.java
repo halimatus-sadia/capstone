@@ -1,6 +1,6 @@
-package com.example.capstone.volunteer;
+package com.example.capstone.volunteering;
 
-import com.example.capstone.user.User;
+import com.example.capstone.auth.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
