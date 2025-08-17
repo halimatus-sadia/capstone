@@ -1,281 +1,110 @@
 <!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Opportunity Details</title>
-    <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .detail-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 700px;
-            text-align: left;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            color: #666;
-        }
-
-        .opportunity-info {
-            margin-bottom: 30px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #555;
-            min-width: 120px;
-        }
-
-        .info-value {
-            color: #333;
-            flex: 1;
-            text-align: right;
-        }
-
-        .description {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .status-open {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-closed {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .type-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            background-color: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .actions {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin: 10px 5px;
-            min-width: 120px;
-        }
-
-        .btn-primary {
-            background-color: #2575fc;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #6a11cb;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-        .form-footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .form-footer a {
-            color: #2575fc;
-            text-decoration: none;
-        }
-
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .posted-by {
-            background-color: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .posted-by-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .posted-by-name {
-            font-weight: bold;
-            color: #1976d2;
-            font-size: 1.1rem;
-        }
-
-        @media (max-width: 600px) {
-            .detail-container {
-                padding: 20px;
-                margin: 10px;
-            }
-
-            .info-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .info-value {
-                text-align: left;
-                margin-top: 5px;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/volunteering_detail.css}" rel="stylesheet">
+    <script defer th:src="@{/js/ui.js}"></script>
 </head>
 <body>
-    <div class="detail-container">
-        <div class="header">
-            <h1 id="opportunity-title">Loading...</h1>
-            <p class="subtitle">Volunteer Opportunity Details</p>
-        </div>
+<div th:replace="fragments/nav :: navbar"></div>
 
-        <div class="posted-by">
-            <div class="posted-by-label">Posted by</div>
-            <div class="posted-by-name" id="posted-by-name">Loading...</div>
+<main>
+    <section class="hero">
+        <div class="container">
+            <h1 id="opportunity-title">Volunteer Opportunity Details</h1>
+            <p class="muted">Learn more about this volunteer opportunity</p>
         </div>
+    </section>
 
-        <div class="opportunity-info">
-            <div class="info-row">
-                <span class="info-label">Type:</span>
-                <span class="info-value">
-                    <span class="type-badge" id="opportunity-type">Loading...</span>
-                </span>
+    <section class="container">
+        <div class="opportunity-detail">
+            <!-- Header -->
+            <div class="opportunity-header">
+                <div class="opportunity-meta">
+                    <span id="opportunity-type" class="badge badge-primary"></span>
+                    <span id="opportunity-status" class="badge"></span>
+                    <span id="opportunity-location" class="badge badge-secondary"></span>
+                </div>
+                <div class="opportunity-dates">
+                    <span id="opportunity-dates"></span>
+                </div>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Location:</span>
-                <span class="info-value" id="opportunity-location">Loading...</span>
+            <!-- Posted By -->
+            <div class="posted-by">
+                <h3>Posted by</h3>
+                <p id="posted-by-name"></p>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Date:</span>
-                <span class="info-value" id="opportunity-date">Loading...</span>
+            <!-- Opportunity Info -->
+            <div class="opportunity-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Type</h4>
+                        <p id="type-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Location</h4>
+                        <p id="location-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Start Date</h4>
+                        <p id="start-date-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>End Date</h4>
+                        <p id="end-date-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Max Volunteers</h4>
+                        <p id="max-volunteers-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Status</h4>
+                        <p id="status-text"></p>
+                    </div>
+                </div>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Status:</span>
-                <span class="info-value">
-                    <span class="status-badge" id="opportunity-status">Loading...</span>
-                </span>
+            <!-- Description -->
+            <div class="opportunity-description">
+                <h3>Description</h3>
+                <p id="description-text"></p>
+            </div>
+
+            <!-- Requirements -->
+            <div id="requirements-section" class="opportunity-requirements" style="display: none;">
+                <h3>Requirements</h3>
+                <p id="requirements-text"></p>
+            </div>
+
+            <!-- Contact Info -->
+            <div id="contact-section" class="opportunity-contact" style="display: none;">
+                <h3>Contact Information</h3>
+                <p id="contact-text"></p>
+            </div>
+
+            <!-- Actions -->
+            <div class="opportunity-actions">
+                <button id="apply-btn" class="btn btn-primary">Apply to Volunteer</button>
+                <button id="delete-btn" class="btn btn-danger" style="display: none;">Delete Opportunity</button>
+                <a href="/volunteering" class="btn btn-ghost">Back to Opportunities</a>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div id="success-message" class="alert alert-success" style="display: none;">
+                <p>Application submitted successfully!</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error" style="display: none;">
+                <p id="error-text">An error occurred. Please try again.</p>
             </div>
         </div>
+    </section>
+</main>
 
-        <div class="description">
-            <h3 style="margin-bottom: 15px; color: #333;">Description</h3>
-            <p id="opportunity-description">Loading...</p>
-        </div>
-
-        <div class="actions" id="actions-container">
-            <!-- Actions will be loaded here via JavaScript -->
-        </div>
-
-        <div class="form-footer">
-            <a href="/volunteering">Back to Opportunities</a> | 
-            <a href="/">Back to Home</a>
-        </div>
-    </div>
-
-    <script th:src="@{/js/volunteering-detail.js}"></script>
+<script th:src="@{/js/volunteering-detail.js}"></script>
 </body>
 </html> 
