@@ -1,4 +1,4 @@
-package com.example.capstone.post;
+package com.example.capstone.feed;
 
 import com.example.capstone.auth.User;
 import com.example.capstone.auth.UserRepository;
@@ -55,3 +55,4 @@ public class PostService {
                 .orElseThrow(() -> new EntityNotFoundException("Post not found: " + id));
     }
 }
+
