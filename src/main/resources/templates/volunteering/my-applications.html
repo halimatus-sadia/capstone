@@ -1,57 +1,65 @@
 <!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>My Volunteer Applications</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link th:href="@{/css/styles.css}" rel="stylesheet">
-    <link th:href="@{/css/volunteering_applications.css}" rel="stylesheet">
-    <script defer th:src="@{/js/ui.js}"></script>
+  <meta charset="UTF-8">
+  <title>My Volunteer Applications</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link th:href="@{/css/styles.css}" rel="stylesheet">
+  <link th:href="@{/css/volunteering_applications.css}" rel="stylesheet">
+  <script defer th:src="@{/js/volunteering-applications.js}"></script>
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
 
 <main>
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <h1>My Volunteer Applications</h1>
-            <p class="muted">Track your volunteer applications and their status</p>
+  <section class="hero">
+    <div class="container">
+      <h1>My Volunteer Applications</h1>
+      <p class="muted">Track your volunteer applications and their status</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="applications-container">
+      <div id="applications-container" class="applications-grid" th:if="${applications != null and !applications.isEmpty()}">
+        <article class="card" th:each="a : ${applications}">
+          <header style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 th:text="${a.opportunityTitle}">Opportunity</h3>
+            <span class="badge"
+                  th:classappend="${a.status.name() == 'APPROVED'} ? ' badge-success' :
+                                  (${a.status.name() == 'REJECTED'} ? ' badge-danger' : ' badge-secondary')"
+                  th:text="${a.status}">PENDING</span>
+          </header>
+          <p class="muted" th:text="${a.opportunityLocation}">Location</p>
+          <p th:text="${#temporals.format(a.appliedAt,'MMM d, yyyy')}">Applied Date</p>
+          <footer style="display:flex;gap:8px;align-items:center;">
+            <a th:href="@{|/volunteering/${a.opportunityId}|}" class="btn btn-ghost">View</a>
+
+            <form th:if="${a.withdrawable}"
+                  th:action="@{|/volunteering/applications/${a.id}/withdraw|}" method="post"
+                  onsubmit="return confirm('Withdraw this application?');">
+              <button class="btn btn-danger" type="submit">Withdraw</button>
+            </form>
+          </footer>
+        </article>
+      </div>
+
+      <div id="no-applications" class="no-applications" th:if="${applications == null or applications.isEmpty()}">
+        <div class="empty-state">
+          <h3>No Applications Yet</h3>
+          <p>You haven't applied to any volunteer opportunities yet.</p>
+          <a th:href="@{/volunteering}" class="btn btn-primary">Browse Opportunities</a>
         </div>
-    </section>
+      </div>
 
-    <section class="container">
-        <div class="applications-container">
-            <!-- Applications List -->
-            <div id="applications-container" class="applications-grid">
-                <!-- Applications will be loaded here -->
-            </div>
+      <div id="success-message" class="alert alert-success" th:if="${success}">
+        <p th:text="${success}">Application withdrawn successfully!</p>
+      </div>
 
-            <!-- Loading State -->
-            <div id="loading" class="loading" style="display: none;">
-                <p>Loading your applications...</p>
-            </div>
-
-            <!-- No Applications State -->
-            <div id="no-applications" class="no-applications" style="display: none;">
-                <div class="empty-state">
-                    <h3>No Applications Yet</h3>
-                    <p>You haven't applied to any volunteer opportunities yet.</p>
-                    <a href="/volunteering" class="btn btn-primary">Browse Opportunities</a>
-                </div>
-            </div>
-
-            <!-- Success/Error Messages -->
-            <div id="success-message" class="alert alert-success" style="display: none;">
-                <p>Application withdrawn successfully!</p>
-            </div>
-
-            <div id="error-message" class="alert alert-error" style="display: none;">
-                <p id="error-text">An error occurred. Please try again.</p>
-            </div>
-        </div>
-    </section>
+      <div id="error-message" class="alert alert-error" th:if="${error}">
+        <p id="error-text" th:text="${error}">An error occurred. Please try again.</p>
+      </div>
+    </div>
+  </section>
 </main>
-
-<script th:src="@{/js/volunteering-applications.js}"></script>
 </body>
 </html>

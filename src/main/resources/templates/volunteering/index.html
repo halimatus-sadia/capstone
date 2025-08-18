@@ -1,89 +1,107 @@
 <!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Volunteer Opportunities</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link th:href="@{/css/styles.css}" rel="stylesheet">
-    <link th:href="@{/css/volunteering.css}" rel="stylesheet">
-    <script defer th:src="@{/js/ui.js}"></script>
+  <meta charset="UTF-8">
+  <title>Volunteer Opportunities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link th:href="@{/css/styles.css}" rel="stylesheet">
+  <link th:href="@{/css/volunteering.css}" rel="stylesheet">
+  <script defer th:src="@{/js/volunteering.js}"></script>
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
 
 <main>
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <h1>Volunteer Opportunities</h1>
-            <p class="muted">Make a difference in the lives of pets and their owners</p>
+  <section class="hero">
+    <div class="container">
+      <h1>Volunteer Opportunities</h1>
+      <p class="muted">Make a difference in the lives of pets and their owners</p>
+    </div>
+  </section>
+
+  <section class="container layout">
+    <!-- Filters -->
+    <aside class="filters">
+      <div class="filters-head"><h2>Filters</h2></div>
+
+      <form method="get" class="stack md:sticky md:top-20">
+        <label class="field">
+          <span>Location</span>
+          <input type="text" name="location" th:value="${param.location}">
+        </label>
+
+        <label class="field">
+          <span>Type</span>
+          <select name="type">
+            <option value="" th:selected="${param.type == null or param.type == ''}">Any Type</option>
+            <option th:each="t : ${T(com.example.capstone.volunteering.VolunteerOpportunityType).values()}"
+                    th:value="${t}" th:text="${t}"
+                    th:selected="${param.type != null and param.type == ${t}}"></option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input type="date" name="date" th:value="${param.date}">
+        </label>
+
+        <div class="grid-2">
+          <button class="btn btn-primary" type="submit">Apply</button>
+          <a class="btn btn-ghost" th:href="@{/volunteering}">Reset</a>
         </div>
+      </form>
+    </aside>
+
+    <!-- Results -->
+    <section class="results">
+      <div class="results-head">
+        <div>
+          <h2 id="results-count"
+              th:text="${page != null ? page.totalElements + ' results' : '0 results'}">0 results</h2>
+          <p class="muted">Find opportunities to help pets in need</p>
+        </div>
+        <div class="right">
+          <a th:href="@{/volunteering/create}" class="btn btn-primary">Post Opportunity</a>
+        </div>
+      </div>
+
+      <div id="opportunities-container" class="opportunities-grid">
+        <article class="opportunity-card" th:each="o : ${page?.content}">
+          <header>
+            <h3 class="opportunity-title" th:text="${o.title}">Title</h3>
+          </header>
+          <div class="opportunity-meta">
+            <span class="badge badge-primary" th:text="${o.type}">WALKING</span>
+            <span class="badge" th:classappend="${o.status.name() == 'OPEN'} ? ' badge-success' : ' badge-warning'"
+                  th:text="${o.status}">OPEN</span>
+            <span class="badge badge-secondary" th:text="${o.location}">Dhaka</span>
+          </div>
+          <p class="opportunity-description" th:text="${o.description}">Desc…</p>
+
+          <div class="opportunity-actions">
+            <a th:href="@{|/volunteering/${o.id}|}">View details</a>
+            <span class="muted" th:text="${#temporals.format(o.startDate,'MMM d')} + ' - ' + ${#temporals.format(o.endDate,'MMM d, yyyy')}">Dates</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="loading" th:if="${page == null or page.totalElements == 0}">
+        <p>No volunteer opportunities found.</p>
+      </div>
+
+      <!-- Pagination -->
+      <nav class="pagination" th:if="${page != null and page.totalPages > 1}" style="margin-top:16px; display:flex; gap:8px;">
+        <a class="btn btn-ghost"
+           th:href="@{/volunteering(page=${page.number-1}, size=${page.size}, location=${param.location}, type=${param.type}, date=${param.date})}"
+           th:if="${!page.first}">Prev</a>
+
+        <span class="badge" th:text="'Page ' + ${page.number + 1} + ' / ' + ${page.totalPages}">Page</span>
+
+        <a class="btn btn-ghost"
+           th:href="@{/volunteering(page=${page.number+1}, size=${page.size}, location=${param.location}, type=${param.type}, date=${param.date})}"
+           th:if="${!page.last}">Next</a>
+      </nav>
     </section>
-
-    <section class="container layout">
-        <!-- Filters -->
-        <aside class="filters">
-            <div class="filters-head">
-                <h2>Filters</h2>
-            </div>
-
-            <form method="get" class="stack md:sticky md:top-20">
-                <label class="field">
-                    <span>Location</span>
-                    <input type="text" name="location" placeholder="City or area">
-                </label>
-
-                <label class="field">
-                    <span>Type</span>
-                    <select name="type">
-                        <option value="">Any Type</option>
-                        <option value="WALKING">Pet Walking</option>
-                        <option value="SITTING">Pet Sitting</option>
-                        <option value="FEEDING">Pet Feeding</option>
-                        <option value="CLEANING">Cleaning</option>
-                        <option value="OTHER">Other</option>
-                    </select>
-                </label>
-
-                <label class="field">
-                    <span>Date</span>
-                    <input type="date" name="date">
-                </label>
-
-                <div class="grid-2">
-                    <button class="btn btn-primary" type="submit">Apply</button>
-                    <a class="btn btn-ghost" th:href="@{/volunteering}">Reset</a>
-                </div>
-            </form>
-        </aside>
-
-        <!-- Results -->
-        <section class="results">
-            <div class="results-head">
-                <div>
-                    <h2 id="results-count">0 results</h2>
-                    <p class="muted">Find opportunities to help pets in need</p>
-                </div>
-
-                <div class="right">
-                    <a href="/volunteering/create" class="btn btn-primary">Post Opportunity</a>
-                </div>
-            </div>
-
-            <div id="opportunities-container" class="opportunities-grid">
-                <!-- Opportunities will be loaded here -->
-            </div>
-
-            <div id="loading" class="loading" style="display: none;">
-                <p>Loading opportunities...</p>
-            </div>
-
-            <div id="no-results" class="no-results" style="display: none;">
-                <p>No volunteer opportunities found.</p>
-            </div>
-        </section>
-    </section>
+  </section>
 </main>
-
-<script th:src="@{/js/volunteering.js}"></script>
 </body>
 </html>

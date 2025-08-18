@@ -1,130 +1,123 @@
 <!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Post Volunteer Opportunity</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link th:href="@{/css/styles.css}" rel="stylesheet">
-    <link th:href="@{/css/create_volunteering.css}" rel="stylesheet">
-    <script defer th:src="@{/js/ui.js}"></script>
+  <meta charset="UTF-8">
+  <title>Post Volunteer Opportunity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link th:href="@{/css/styles.css}" rel="stylesheet">
+  <link th:href="@{/css/create_volunteering.css}" rel="stylesheet">
+  <script defer th:src="@{/js/volunteering-create.js}"></script>
 </head>
 <body>
 <div th:replace="fragments/nav :: navbar"></div>
 
 <main>
-    <section class="hero">
-        <div class="container">
-            <h1>Post Volunteer Opportunity</h1>
-            <p class="muted">Share an opportunity for others to help pets in need</p>
-        </div>
-    </section>
+  <section class="hero">
+    <div class="container">
+      <h1>Post Volunteer Opportunity</h1>
+      <p class="muted">Share an opportunity for others to help pets in need</p>
+    </div>
+  </section>
 
-    <section class="container">
-        <form class="card form" id="opportunity-form" method="post" novalidate>
-            <!-- Top split -->
-            <div class="form-grid">
-                <!-- LEFT: Core info -->
-                <div class="stack">
-                    <h2 class="form-section">Basic info</h2>
+  <section class="container">
+    <form class="card form" id="opportunity-form"
+          th:action="@{/volunteering/create}" th:object="${form}" method="post" novalidate>
+      <div class="form-grid">
+        <div class="stack">
+          <h2 class="form-section">Basic info</h2>
 
-                    <label class="field" for="title">
-                        <span>Title <em class="req">*</em></span>
-                        <input id="title" type="text" name="title" placeholder="e.g., Pet Walking Volunteer Needed" required>
-                        <small class="err" id="title-error" style="display: none;">Title is required</small>
-                    </label>
+          <label class="field" for="title">
+            <span>Title <em class="req">*</em></span>
+            <input id="title" type="text" th:field="*{title}" placeholder="e.g., Pet Walking Volunteer Needed" required>
+            <small class="err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title is required</small>
+          </label>
 
-                    <div class="grid-2">
-                        <label class="field" for="type">
-                            <span>Type <em class="req">*</em></span>
-                            <select id="type" name="type" required>
-                                <option value="" disabled selected>Select type</option>
-                                <option value="WALKING">Pet Walking</option>
-                                <option value="SITTING">Pet Sitting</option>
-                                <option value="FEEDING">Pet Feeding</option>
-                                <option value="CLEANING">Cleaning</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                            <small class="err" id="type-error" style="display: none;">Type is required</small>
-                        </label>
+          <div class="grid-2">
+            <label class="field" for="type">
+              <span>Type <em class="req">*</em></span>
+              <select id="type" th:field="*{type}" required>
+                <option value="" disabled>Select type</option>
+                <option th:each="t : ${T(com.example.capstone.volunteering.VolunteerOpportunityType).values()}"
+                        th:value="${t}" th:text="${t}"></option>
+              </select>
+              <small class="err" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">Type is required</small>
+            </label>
 
-                        <label class="field" for="location">
-                            <span>Location <em class="req">*</em></span>
-                            <input id="location" type="text" name="location" placeholder="City, Area" required>
-                            <small class="err" id="location-error" style="display: none;">Location is required</small>
-                        </label>
-                    </div>
+            <label class="field" for="location">
+              <span>Location <em class="req">*</em></span>
+              <input id="location" type="text" th:field="*{location}" placeholder="City, Area" required>
+              <small class="err" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Location is required</small>
+            </label>
+          </div>
 
-                    <div class="grid-2">
-                        <label class="field" for="startDate">
-                            <span>Start Date <em class="req">*</em></span>
-                            <input id="startDate" type="date" name="startDate" required>
-                            <small class="err" id="startDate-error" style="display: none;">Start date is required</small>
-                        </label>
+          <div class="grid-2">
+            <label class="field" for="startDate">
+              <span>Start Date <em class="req">*</em></span>
+              <input id="startDate" type="date" th:field="*{startDate}" required>
+              <small class="err" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}">Start date is required</small>
+            </label>
 
-                        <label class="field" for="endDate">
-                            <span>End Date <em class="req">*</em></span>
-                            <input id="endDate" type="date" name="endDate" required>
-                            <small class="err" id="endDate-error" style="display: none;">End date is required</small>
-                        </label>
-                    </div>
+            <label class="field" for="endDate">
+              <span>End Date <em class="req">*</em></span>
+              <input id="endDate" type="date" th:field="*{endDate}" required>
+              <small class="err" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}">End date is required</small>
+            </label>
+          </div>
 
-                    <label class="field" for="description">
-                        <span>Description <em class="req">*</em></span>
-                        <textarea id="description" name="description" rows="4" placeholder="Describe the volunteer opportunity, requirements, and what volunteers will be doing..." required></textarea>
-                        <small class="err" id="description-error" style="display: none;">Description is required</small>
-                    </label>
-                </div>
-
-                <!-- RIGHT: Additional info -->
-                <div class="stack">
-                    <h2 class="form-section">Additional details</h2>
-
-                    <label class="field" for="status">
-                        <span>Status <em class="req">*</em></span>
-                        <select id="status" name="status" required>
-                            <option value="" disabled selected>Select status</option>
-                            <option value="OPEN">Open</option>
-                            <option value="CLOSED">Closed</option>
-                        </select>
-                        <small class="err" id="status-error" style="display: none;">Status is required</small>
-                    </label>
-
-                    <label class="field" for="maxVolunteers">
-                        <span>Max Volunteers</span>
-                        <input id="maxVolunteers" type="number" name="maxVolunteers" min="1" placeholder="e.g., 5">
-                        <small class="hint muted">Leave empty for unlimited volunteers</small>
-                    </label>
-
-                    <label class="field" for="requirements">
-                        <span>Requirements</span>
-                        <textarea id="requirements" name="requirements" rows="3" placeholder="Any specific requirements for volunteers..."></textarea>
-                    </label>
-
-                    <label class="field" for="contactInfo">
-                        <span>Contact Information</span>
-                        <input id="contactInfo" type="text" name="contactInfo" placeholder="Phone, email, or preferred contact method">
-                    </label>
-                </div>
-            </div>
-
-            <!-- Bottom actions -->
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Post Opportunity</button>
-                <a href="/volunteering" class="btn btn-ghost">Cancel</a>
-            </div>
-        </form>
-
-        <!-- Success/Error Messages -->
-        <div id="success-message" class="alert alert-success" style="display: none;">
-            <p>Volunteer opportunity posted successfully!</p>
-            <a href="/volunteering" class="btn btn-primary">View All Opportunities</a>
+          <label class="field" for="description">
+            <span>Description <em class="req">*</em></span>
+            <textarea id="description" th:field="*{description}" rows="4"
+                      placeholder="Describe the volunteer opportunity, requirements, and what volunteers will be doing..." required></textarea>
+            <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description is required</small>
+          </label>
         </div>
 
-        <div id="error-message" class="alert alert-error" style="display: none;">
-            <p id="error-text">An error occurred. Please try again.</p>
+        <div class="stack">
+          <h2 class="form-section">Additional details</h2>
+
+          <label class="field" for="status">
+            <span>Status <em class="req">*</em></span>
+            <select id="status" th:field="*{status}" required>
+              <option value="" disabled>Select status</option>
+              <option th:each="s : ${T(com.example.capstone.volunteering.VolunteerOpportunityStatus).values()}"
+                      th:value="${s}" th:text="${s}"></option>
+            </select>
+            <small class="err" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Status is required</small>
+          </label>
+
+          <label class="field" for="maxVolunteers">
+            <span>Max Volunteers</span>
+            <input id="maxVolunteers" type="number" th:field="*{maxVolunteers}" min="1" placeholder="e.g., 5">
+            <small class="hint muted">Leave empty for unlimited volunteers</small>
+          </label>
+
+          <label class="field" for="requirements">
+            <span>Requirements</span>
+            <textarea id="requirements" th:field="*{requirements}" rows="3"
+                      placeholder="Any specific requirements for volunteers..."></textarea>
+          </label>
+
+          <label class="field" for="contactInfo">
+            <span>Contact Information</span>
+            <input id="contactInfo" type="text" th:field="*{contactInfo}" placeholder="Phone, email, or preferred contact method">
+          </label>
         </div>
-    </section>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Post Opportunity</button>
+        <a th:href="@{/volunteering}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+
+    <div id="success-message" class="alert alert-success" th:if="${success}">
+      <p>Volunteer opportunity posted successfully!</p>
+      <a th:href="@{/volunteering}" class="btn btn-primary">View All Opportunities</a>
+    </div>
+
+    <div id="error-message" class="alert alert-error" th:if="${error}">
+      <p id="error-text" th:text="${error}">An error occurred. Please try again.</p>
+    </div>
+  </section>
 </main>
-
-<script th:src="@{/js/volunteering-create.js}"></script>
 </body>
 </html>
