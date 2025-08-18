@@ -11,10 +11,13 @@ public class VolunteerMapper {
         r.setTitle(o.getTitle());
         r.setDescription(o.getDescription());
         r.setLocation(o.getLocation());
+        r.setType(o.getType());
         r.setStartDate(o.getStartDate());
         r.setEndDate(o.getEndDate());
         r.setStatus(o.getStatus());
         r.setMaxVolunteers(o.getMaxVolunteers());
+        r.setRequirements(o.getRequirements());
+        r.setContactInfo(o.getContactInfo());
         r.setCreatedByUsername(o.getCreatedBy() != null ? o.getCreatedBy().getUsername() : null);
         r.setCreatedAt(o.getCreatedAt());
         r.setUpdatedAt(o.getUpdatedAt());

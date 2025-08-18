@@ -23,6 +23,10 @@ public class VolunteerOpportunity {
     @Column(length = 160)
     private String location;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private VolunteerOpportunityType type = VolunteerOpportunityType.OTHER;
+
     @Column(nullable = false)
     private LocalDate startDate;
 
@@ -35,6 +39,12 @@ public class VolunteerOpportunity {
 
     @Column
     private Integer maxVolunteers; // optional capacity
+
+    @Lob
+    private String requirements;
+
+    @Column(length = 255)
+    private String contactInfo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "created_by_id", nullable = false)
@@ -67,6 +77,8 @@ public class VolunteerOpportunity {
     public void setDescription(String description) { this.description = description; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+    public VolunteerOpportunityType getType() { return type; }
+    public void setType(VolunteerOpportunityType type) { this.type = type; }
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
@@ -75,6 +87,10 @@ public class VolunteerOpportunity {
     public void setStatus(VolunteerOpportunityStatus status) { this.status = status; }
     public Integer getMaxVolunteers() { return maxVolunteers; }
     public void setMaxVolunteers(Integer maxVolunteers) { this.maxVolunteers = maxVolunteers; }
+    public String getRequirements() { return requirements; }
+    public void setRequirements(String requirements) { this.requirements = requirements; }
+    public String getContactInfo() { return contactInfo; }
+    public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
     public User getCreatedBy() { return createdBy; }
     public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
