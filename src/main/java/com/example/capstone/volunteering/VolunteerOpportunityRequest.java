@@ -1,7 +1,5 @@
 package com.example.capstone.volunteering;
 
-import com.example.capstone.volunteering.VolunteerOpportunityStatus;
-import com.example.capstone.volunteering.VolunteerOpportunityType;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
