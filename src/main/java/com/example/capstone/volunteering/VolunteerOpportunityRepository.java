@@ -16,7 +16,7 @@ public interface VolunteerOpportunityRepository extends JpaRepository<VolunteerO
         SELECT o FROM VolunteerOpportunity o
         WHERE (:keyword IS NULL OR
                LOWER(o.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-               o.description LIKE CONCAT('%', :keyword, '%') OR
+               LOWER(o.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                LOWER(o.location) LIKE LOWER(CONCAT('%', :keyword, '%')))
           AND (:from IS NULL OR o.startDate >= :from)
           AND (:to IS NULL OR o.endDate <= :to)

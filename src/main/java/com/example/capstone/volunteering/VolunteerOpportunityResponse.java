@@ -8,13 +8,10 @@ public class VolunteerOpportunityResponse {
     private String title;
     private String description;
     private String location;
-    private VolunteerOpportunityType type;
     private LocalDate startDate;
     private LocalDate endDate;
     private VolunteerOpportunityStatus status;
     private Integer maxVolunteers;
-    private String requirements;
-    private String contactInfo;
     private String createdByUsername;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -28,8 +25,6 @@ public class VolunteerOpportunityResponse {
     public void setDescription(String description) { this.description = description; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
-    public VolunteerOpportunityType getType() { return type; }
-    public void setType(VolunteerOpportunityType type) { this.type = type; }
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
@@ -38,10 +33,6 @@ public class VolunteerOpportunityResponse {
     public void setStatus(VolunteerOpportunityStatus status) { this.status = status; }
     public Integer getMaxVolunteers() { return maxVolunteers; }
     public void setMaxVolunteers(Integer maxVolunteers) { this.maxVolunteers = maxVolunteers; }
-    public String getRequirements() { return requirements; }
-    public void setRequirements(String requirements) { this.requirements = requirements; }
-    public String getContactInfo() { return contactInfo; }
-    public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
     public String getCreatedByUsername() { return createdByUsername; }
     public void setCreatedByUsername(String createdByUsername) { this.createdByUsername = createdByUsername; }
     public LocalDateTime getCreatedAt() { return createdAt; }
