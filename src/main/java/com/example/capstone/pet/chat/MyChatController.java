@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,6 +40,8 @@ public class MyChatController {
         ownerPage.getContent().forEach(t -> rows.add(buildRow(t, me, true)));
         userPage.getContent().forEach(t -> rows.add(buildRow(t, me, false)));
 
+        rows.removeIf(Objects::isNull);
+
         rows.sort(Comparator.comparing(Row::lastAt).reversed());
         model.addAttribute("rows", rows);
         model.addAttribute("currentUserId", me);
@@ -60,8 +63,11 @@ public class MyChatController {
         String petImage = (pet != null) ? "image" : null; // TODO: handle image
 
         var last = msgRepo.findTop1ByThreadOrderBySentAtDesc(t);
-        String preview = (last != null) ? last.getContent() : "";
-        LocalDateTime lastAt = (last != null) ? last.getSentAt() : t.getCreatedAt();
+        if (last == null) {
+            return null;
+        }
+        String preview = last.getContent();
+        LocalDateTime lastAt = last.getSentAt();
 
         return new Row(
                 t.getId(),
