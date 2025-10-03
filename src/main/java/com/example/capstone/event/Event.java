@@ -2,6 +2,7 @@ package com.example.capstone.event;
 
 import com.example.capstone.auth.User;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -17,7 +18,6 @@ public class Event {
     @Column(nullable = false, length = 120)
     private String title;
 
-    @Lob
     @Column(nullable = false)
     private String description;
 
@@ -74,44 +74,109 @@ public class Event {
     }
 
     // -- getters/setters --
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public LocalDateTime getStartDateTime() { return startDateTime; }
-    public void setStartDateTime(LocalDateTime startDateTime) { this.startDateTime = startDateTime; }
+    public String getDescription() {
+        return description;
+    }
 
-    public LocalDateTime getEndDateTime() { return endDateTime; }
-    public void setEndDateTime(LocalDateTime endDateTime) { this.endDateTime = endDateTime; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getLocation() {
+        return location;
+    }
 
-    public User getCreatedBy() { return createdBy; }
-    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
-    public Set<User> getGoingUsers() { return goingUsers; }
-    public void setGoingUsers(Set<User> goingUsers) { this.goingUsers = goingUsers; }
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
 
-    public Set<User> getInterestedUsers() { return interestedUsers; }
-    public void setInterestedUsers(Set<User> interestedUsers) { this.interestedUsers = interestedUsers; }
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
 
-    public Set<User> getNotifyUsers() { return notifyUsers; }
-    public void setNotifyUsers(Set<User> notifyUsers) { this.notifyUsers = notifyUsers; }
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Set<User> getGoingUsers() {
+        return goingUsers;
+    }
+
+    public void setGoingUsers(Set<User> goingUsers) {
+        this.goingUsers = goingUsers;
+    }
+
+    public Set<User> getInterestedUsers() {
+        return interestedUsers;
+    }
+
+    public void setInterestedUsers(Set<User> interestedUsers) {
+        this.interestedUsers = interestedUsers;
+    }
+
+    public Set<User> getNotifyUsers() {
+        return notifyUsers;
+    }
+
+    public void setNotifyUsers(Set<User> notifyUsers) {
+        this.notifyUsers = notifyUsers;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     @Override
     public boolean equals(Object o) {
