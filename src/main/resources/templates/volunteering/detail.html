@@ -1,0 +1,110 @@
+<!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Volunteer Opportunity Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/volunteering_detail.css}" rel="stylesheet">
+    <script defer th:src="@{/js/ui.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main>
+    <section class="hero">
+        <div class="container">
+            <h1 id="opportunity-title">Volunteer Opportunity Details</h1>
+            <p class="muted">Learn more about this volunteer opportunity</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="opportunity-detail">
+            <!-- Header -->
+            <div class="opportunity-header">
+                <div class="opportunity-meta">
+                    <span id="opportunity-type" class="badge badge-primary"></span>
+                    <span id="opportunity-status" class="badge"></span>
+                    <span id="opportunity-location" class="badge badge-secondary"></span>
+                </div>
+                <div class="opportunity-dates">
+                    <span id="opportunity-dates"></span>
+                </div>
+            </div>
+
+            <!-- Posted By -->
+            <div class="posted-by">
+                <h3>Posted by</h3>
+                <p id="posted-by-name"></p>
+            </div>
+
+            <!-- Opportunity Info -->
+            <div class="opportunity-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Type</h4>
+                        <p id="type-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Location</h4>
+                        <p id="location-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Start Date</h4>
+                        <p id="start-date-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>End Date</h4>
+                        <p id="end-date-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Max Volunteers</h4>
+                        <p id="max-volunteers-text"></p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Status</h4>
+                        <p id="status-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="opportunity-description">
+                <h3>Description</h3>
+                <p id="description-text"></p>
+            </div>
+
+            <!-- Requirements -->
+            <div id="requirements-section" class="opportunity-requirements" style="display: none;">
+                <h3>Requirements</h3>
+                <p id="requirements-text"></p>
+            </div>
+
+            <!-- Contact Info -->
+            <div id="contact-section" class="opportunity-contact" style="display: none;">
+                <h3>Contact Information</h3>
+                <p id="contact-text"></p>
+            </div>
+
+            <!-- Actions -->
+            <div class="opportunity-actions">
+                <button id="apply-btn" class="btn btn-primary">Apply to Volunteer</button>
+                <button id="delete-btn" class="btn btn-danger" style="display: none;">Delete Opportunity</button>
+                <a href="/volunteering" class="btn btn-ghost">Back to Opportunities</a>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div id="success-message" class="alert alert-success" style="display: none;">
+                <p>Application submitted successfully!</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error" style="display: none;">
+                <p id="error-text">An error occurred. Please try again.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script th:src="@{/js/volunteering-detail.js}"></script>
+</body>
+</html> 

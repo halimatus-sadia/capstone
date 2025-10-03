@@ -1,0 +1,128 @@
+<!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Events</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/css/events.css}" rel="stylesheet">
+    <script defer th:src="@{/js/ui.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Pet Events</h1>
+            <p class="muted">Discover exciting pet events, meetups, and activities in your area</p>
+        </div>
+    </section>
+
+    <section class="container layout">
+        <!-- Filters -->
+        <aside class="filters">
+            <div class="filters-head">
+                <h2>Filters</h2>
+            </div>
+
+            <form method="get" class="stack md:sticky md:top-20">
+                <label class="field">
+                    <span>Search</span>
+                    <input type="text" name="q" th:value="${q}" placeholder="Search events...">
+                </label>
+
+                <label class="field">
+                    <span>From Date</span>
+                    <input type="datetime-local" name="from" th:value="${from}">
+                </label>
+
+                <label class="field">
+                    <span>To Date</span>
+                    <input type="datetime-local" name="to" th:value="${to}">
+                </label>
+
+                <label class="field">
+                    <span>Sort By</span>
+                    <select name="sort">
+                        <option value="startDateTime,asc" th:selected="${sort == 'startDateTime,asc'}">Date: Earliest First</option>
+                        <option value="startDateTime,desc" th:selected="${sort == 'startDateTime,desc'}">Date: Latest First</option>
+                        <option value="title,asc" th:selected="${sort == 'title,asc'}">Title: A → Z</option>
+                        <option value="title,desc" th:selected="${sort == 'title,desc'}">Title: Z → A</option>
+                    </select>
+                </label>
+
+                <div class="grid-2">
+                    <button class="btn btn-primary" type="submit">Apply</button>
+                    <a class="btn btn-ghost" th:href="@{/events}">Reset</a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Results -->
+        <section class="results">
+            <div class="results-head">
+                <div>
+                    <h2 th:text="${events.totalElements == 0} ? '0 results' : ${events.number * events.size + 1} + '–' + ${Math.min((events.number + 1) * events.size, events.totalElements)} + ' of ' + ${events.totalElements} + ' results'">
+                        0 results</h2>
+                    <p class="muted">Find amazing pet events happening near you</p>
+                </div>
+
+                <div class="right">
+                    <a href="/events/create" class="btn btn-primary">Create Event</a>
+                </div>
+            </div>
+
+            <div class="events-grid">
+                <div th:each="event : ${events.content}" class="event-card">
+                    <div class="event-image" th:if="${event.imageUrl}">
+                        <img th:src="${event.imageUrl}" th:alt="${event.title}" loading="lazy">
+                    </div>
+                    <div class="event-content">
+                        <h3 class="event-title">
+                            <a th:href="@{/events/{id}(id=${event.id})}" th:text="${event.title}">Event Title</a>
+                        </h3>
+                        <p class="event-description" th:text="${#strings.abbreviate(event.description, 120)}">Event description...</p>
+                        <div class="event-meta">
+                            <span class="event-location" th:text="${event.location}">Location</span>
+                            <span class="event-date" th:text="${#temporals.format(event.startDateTime, 'MMM dd, yyyy')}">Date</span>
+                            <span class="event-time" th:text="${#temporals.format(event.startDateTime, 'HH:mm')}">Time</span>
+                        </div>
+                        <div class="event-actions">
+                            <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${events.totalPages > 1}" class="pagination">
+                <div class="pagination-info">
+                    <span th:text="${events.number + 1} + ' of ' + ${events.totalPages}">1 of 1</span>
+                </div>
+                <div class="pagination-controls">
+                    <a th:if="${events.hasPrevious()}" 
+                       th:href="@{/events(q=${q}, from=${from}, to=${to}, page=${events.number - 1}, size=${events.size}, sort=${sort})}"
+                       class="btn btn-ghost">Previous</a>
+                    
+                    <a th:if="${events.hasNext()}" 
+                       th:href="@{/events(q=${q}, from=${from}, to=${to}, page=${events.number + 1}, size=${events.size}, sort=${sort})}"
+                       class="btn btn-ghost">Next</a>
+                </div>
+            </div>
+
+            <!-- No Results -->
+            <div th:if="${events.totalElements == 0}" class="no-results">
+                <div class="empty-state">
+                    <h3>No Events Found</h3>
+                    <p>No events match your current filters. Try adjusting your search criteria.</p>
+                    <a href="/events" class="btn btn-primary">View All Events</a>
+                </div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script th:src="@{/js/events.js}"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Volunteer Applications</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="container">
+    <h1 class="h2">My Applications</h1>
+    <div th:if="${#lists.isEmpty(applications)}" class="muted">No applications yet.</div>
+    <div th:each="a : ${applications}" class="card p-16 mt-12">
+        <div class="flex-row justify-between">
+            <div>
+                <div class="h4" th:text="${a.opportunityTitle}">Opportunity</div>
+                <div class="muted" th:text="${a.status}">PENDING</div>
+            </div>
+            <a th:href="@{'/volunteer/opportunities/' + ${a.opportunityId}}" class="btn">View</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
