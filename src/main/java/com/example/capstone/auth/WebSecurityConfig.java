@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     private static final String[] whitelisted = new String[]{
             "/register", "/login", "/", "/static/css/**", "/static/js/**",
             "/explore", "/error", "/403",
-            "/ws/**", "/app/**", "/chat/**", "/topic/**"
+            "/ws/**", "/app/**", "/chat/**", "/topic/**", "/notifications/**"
     };
 
     @Bean

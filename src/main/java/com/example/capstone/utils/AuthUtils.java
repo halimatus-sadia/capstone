@@ -15,10 +15,12 @@ public class AuthUtils {
 
     @NotNull
     public User getLoggedInUser() {
-        var principal = (org.springframework.security.core.userdetails.User)
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository
-                .findByUsername(principal.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found."));
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                instanceof org.springframework.security.core.userdetails.User principal) {
+            return userRepository
+                    .findByUsername(principal.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found!"));
+        }
+        throw new RuntimeException("User is not authenticated!");
     }
 }

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Usage: th:replace="fragments/notifications :: bell(${currentUserId})" -->
+<div th:fragment="bell(userId)">
+    <div id="notif-bell" class="notif-bell" th:attr="data-user-id=${userId}">
+        <a href="#" id="notif-toggle" aria-label="Notifications">🔔
+            <span id="notif-count" class="badge" style="display:none"></span>
+        </a>
+
+        <div id="notif-panel" class="panel" style="display:none">
+            <!-- Panel header with button at the top -->
+            <div class="panel-header">
+                <span class="panel-title">Notifications</span>
+                <button id="notif-readall" type="button" class="link-btn" title="Mark all as read">
+                    Mark all read
+                </button>
+            </div>
+
+            <div id="notif-list" class="list"></div>
+        </div>
+    </div>
+
+    <!-- SockJS + STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <!-- IMPORTANT: enable Thymeleaf JS inlining so ${userId} is injected properly -->
+    <script th:inline="javascript">
+        (function () {
+            const bell = document.getElementById('notif-bell');
+            const countEl = document.getElementById('notif-count');
+            const panel = document.getElementById('notif-panel');
+            const list = document.getElementById('notif-list');
+            const toggle = document.getElementById('notif-toggle');
+            const readAllBtn = document.getElementById('notif-readall');
+
+            let userId = Number(bell && bell.dataset ? bell.dataset.userId : NaN);
+
+            function ensureUserId() {
+                if (!userId || Number.isNaN(userId)) {
+                    // Optional fallback endpoint (returns {userId: ...})
+                    return fetch('/notifications/self')
+                        .then(r => r.ok ? r.json() : {userId: null})
+                        .then(j => {
+                            userId = Number(j.userId);
+                            return userId;
+                        });
+                }
+                return Promise.resolve(userId);
+            }
+
+            function showCount(n) {
+                if (n > 0) {
+                    countEl.textContent = String(n);
+                    countEl.style.display = 'inline-block';
+                } else {
+                    countEl.style.display = 'none';
+                    countEl.textContent = '';
+                }
+            }
+
+            function refresh() {
+                // Count (cache-buster, server also sets no-store)
+                fetch('/notifications/unread-count?_=' + Date.now())
+                    .then(r => r.json())
+                    .then(c => showCount(Number(c)))
+                    .catch(() => {
+                    });
+
+                // List
+                fetch('/notifications?_=' + Date.now())
+                    .then(r => r.json())
+                    .then(items => {
+                        list.innerHTML = items.map(n =>
+                            '<div class="item' + (n.readFlag ? ' read' : '') + '">' +
+                            '<b>' + escapeHtml(n.title || '') + '</b><br/>' +
+                            escapeHtml(n.message || '') +
+                            (n.link ? '<br/><a href="' + encodeURI(n.link) + '">Open</a>' : '') +
+                            '</div>'
+                        ).join('');
+                    }).catch(() => {
+                });
+            }
+
+            // Instant visual feedback when a push arrives (optimistic)
+            function bumpBadge() {
+                const current = parseInt(countEl.textContent || '0', 10) || 0;
+                showCount(current + 1);
+            }
+
+            function prependItem(n) {
+                const el = document.createElement('div');
+                el.className = 'item';
+                el.innerHTML =
+                    '<b>' + escapeHtml(n.title || '') + '</b><br/>' +
+                    escapeHtml(n.message || '') +
+                    (n.link ? '<br/><a href="' + encodeURI(n.link) + '">Open</a>' : '');
+                list.prepend(el);
+            }
+
+            // Basic HTML escaping
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            // UI interactions
+            if (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                });
+            }
+
+            if (readAllBtn) {
+                readAllBtn.addEventListener('click', function () {
+                    fetch('/notifications/read-all', {method: 'POST'}).then(refresh);
+                });
+            }
+
+            function connectWS(uid) {
+                const sock = new SockJS('/ws');
+                const stomp = Stomp.over(sock);
+                stomp.connect({}, function () {
+                    const dest = '/topic/notifications/' + uid;
+                    stomp.subscribe(dest, function (msg) {
+                        try {
+                            const n = JSON.parse(msg.body);
+                            bumpBadge();
+                            prependItem(n);
+                        } catch (e) {
+                            // If payload isn't JSON, ignore optimistic update
+                        }
+                        setTimeout(refresh, 300); // reconcile after commit
+                    });
+                    refresh();
+                }, function (err) {
+                    console.warn('[Notif] STOMP connect error', err);
+                    refresh();
+                });
+            }
+
+            ensureUserId().then(uid => {
+                if (uid && !Number.isNaN(uid)) {
+                    connectWS(uid);
+                } else {
+                    console.warn('[Notif] Unable to resolve user id; notifications disabled');
+                    refresh();
+                }
+            });
+        })();
+    </script>
+
+    <style>
+        .notif-bell {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        #notif-toggle {
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 9999px;
+            text-decoration: none;
+        }
+
+        .notif-bell .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            padding: 0 6px;
+            font-size: 12px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .notif-bell .panel {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            z-index: 50;
+            width: 300px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
+            padding: 0; /* header has its own padding */
+            overflow: hidden;
+        }
+
+        /* Header with top-aligned button */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            padding: 4px 6px;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .link-btn:hover {
+            text-decoration: underline;
+        }
+
+        .notif-bell .list {
+            padding: 8px;
+            max-height: 320px;
+            overflow: auto;
+        }
+
+        .notif-bell .list .item {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .notif-bell .list .item.read {
+            opacity: .7;
+        }
+    </style>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.notification.DomainEventPublisher;
 import com.example.capstone.pet.request.*;
 import com.example.capstone.utils.AuthUtils;
 import com.example.capstone.utils.NullHandlerUtils;
@@ -22,6 +23,7 @@ public class PetService {
     private final AuthUtils authUtils;
     private final PetRequestMapper petRequestMapper;
     private final PetRequestRepository petRequestRepository;
+    private final DomainEventPublisher events;
 
     // =========================
     // Pets (existing)
@@ -94,7 +96,18 @@ public class PetService {
             throw new RuntimeException("A request for this pet already PENDING/ACCEPTED.");
         }
 
-        petRequestRepository.save(petRequestMapper.toEntity(dto, pet));
+        PetRequest saved = petRequestRepository.save(petRequestMapper.toEntity(dto, pet));
+
+        // Example inside PetRequestService after save
+        events.petRequestCreated(
+                /* senderUserId    */ authUtils.getLoggedInUser().getId(),        // who performed the action
+                /* recipientUserId */ saved.getPet().getOwner().getId(),           // who should be notified
+                /* petRequestId    */ saved.getId(),
+                /* summary         */ "New request for " + saved.getPet().getName(),
+                /* link            */ "/pets/requests"
+        );
+
+
     }
 
     /**
