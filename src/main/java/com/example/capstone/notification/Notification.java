@@ -1,3 +1,4 @@
+// src/main/java/com/example/capstone/notification/Notification.java
 package com.example.capstone.notification;
 
 import jakarta.persistence.*;
@@ -14,7 +15,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Notification {
-    public enum Type {PET_REQUEST, CHAT_MESSAGE, SYSTEM}
+    public enum Type {
+        PET_REQUEST,
+        CHAT_MESSAGE,
+        SYSTEM,
+        COMMUNITY_POST,
+        COMMUNITY_POST_UPDATED,
+        COMMUNITY_COMMENT,
+        COMMUNITY_MEMBER
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

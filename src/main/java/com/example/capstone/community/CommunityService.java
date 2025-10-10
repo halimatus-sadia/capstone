@@ -1,6 +1,7 @@
+// src/main/java/com/example/capstone/community/CommunityService.java
 package com.example.capstone.community;
 
-import com.example.capstone.auth.User;
+import com.example.capstone.notification.DomainEventPublisher;
 import com.example.capstone.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ public class CommunityService {
     private final CommunityRepository communityRepo;
     private final CommunityMemberRepository memberRepo;
     private final AuthUtils auth;
+    private final DomainEventPublisher events;
 
     public Page<Community> browse(String q, String category, String location, Pageable pageable) {
         return communityRepo.search(emptyToNull(q), emptyToNull(category), emptyToNull(location), pageable);
@@ -21,7 +23,7 @@ public class CommunityService {
 
     @Transactional(rollbackFor = Exception.class)
     public Community create(CommunityRequestDto dto) {
-        User user = auth.getLoggedInUser();
+        var user = auth.getLoggedInUser();
         Community c = new Community();
         apply(dto, c);
         c.setCreatedBy(user);
@@ -37,7 +39,7 @@ public class CommunityService {
 
     @Transactional
     public Community update(Long id, CommunityRequestDto dto) {
-        User user = auth.getLoggedInUser();
+        var user = auth.getLoggedInUser();
         Community c = communityRepo.findById(id).orElseThrow();
         ensureOwnerOrModerator(c.getId(), user.getId());
         apply(dto, c);
@@ -46,19 +48,25 @@ public class CommunityService {
 
     @Transactional
     public boolean toggleJoin(Long communityId) {
-        User user = auth.getLoggedInUser();
+        var user = auth.getLoggedInUser();
         var existing = memberRepo.findByCommunityIdAndUserId(communityId, user.getId());
+        boolean joined;
         if (existing.isPresent()) {
             memberRepo.delete(existing.get());
-            return false; // now left
+            joined = false;
         } else {
             CommunityMember m = new CommunityMember();
             m.setCommunity(communityRepo.getReferenceById(communityId));
             m.setUser(user);
             m.setRole(CommunityMember.Role.MEMBER);
             memberRepo.save(m);
-            return true; // now joined
+            joined = true;
         }
+
+        String link = "/communities/" + communityId;
+        events.communityJoinEvent(user.getId(), communityId, joined, link);
+
+        return joined;
     }
 
     public boolean isMember(Long communityId, Long userId) {
