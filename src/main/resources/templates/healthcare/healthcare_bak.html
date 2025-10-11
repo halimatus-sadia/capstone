@@ -1,0 +1,550 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Pet Healthcare Centers — Bangladesh</title>
+
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg: #f6f8ff;
+            --fg: #1b2540;
+            --muted: #5a6b8c;
+            --card: #fff;
+            --border: rgba(16, 24, 40, .12);
+            --accent: #3b82f6;
+            --accent-soft: #e8f0ff;
+            --chip-bg: #eef2ff;
+            --chip-border: rgba(59, 130, 246, .35);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .pane {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            transition: .12s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(16, 24, 40, .10);
+            border-color: rgba(59, 130, 246, .35);
+        }
+
+        .chip {
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            color: #233163;
+            border-radius: 999px;
+            padding: .25rem .55rem;
+            margin: .15rem .25rem .15rem 0;
+            font-size: .8rem;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .badge-soft {
+            background: var(--accent-soft);
+            color: #1744a8;
+            border: 1px solid rgba(59, 130, 246, .35);
+            font-weight: 500;
+            font-size: .8rem;
+            padding: .25rem .55rem;
+            border-radius: .4rem;
+            display: inline-block;
+            margin-bottom: .3rem;
+        }
+
+        /* --- THE FIX IS HERE --- */
+        .card h5 {
+            line-height: 1.3;
+            word-wrap: break-word;
+            /* This is the new, more direct fix. It forces space above the heading. */
+            margin-top: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            background: #fff;
+            color: var(--fg);
+            border: 1px solid var(--border);
+        }
+
+        .form-control::placeholder {
+            color: #8a96b2
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 .2rem rgba(59, 130, 246, .20);
+        }
+
+        .btn-outline-primary {
+            --bs-btn-color: var(--fg);
+            --bs-btn-border-color: var(--border);
+            --bs-btn-hover-bg: var(--accent-soft);
+            --bs-btn-hover-border-color: var(--accent);
+            --bs-btn-hover-color: var(--fg);
+            --bs-btn-active-bg: var(--accent-soft);
+            --bs-btn-active-border-color: var(--accent);
+            --bs-btn-active-color: var(--fg);
+            border-radius: .6rem;
+        }
+
+        .count-pill {
+            background: #f1f4ff;
+            border: 1px solid var(--border);
+            color: #253357;
+            border-radius: 999px;
+            padding: .3rem .7rem;
+            font-size: .85rem;
+        }
+
+        a.link-dark {
+            text-decoration: none;
+            color: var(--fg)
+        }
+
+        a.link-dark:hover {
+            color: #111b34
+        }
+
+        /* Put any top-level badge in a card body on its own line */
+        .card .card-body > .badge-soft {
+            display: block !important; /* override Bootstrap .badge inline-block */
+            width: max-content;
+            margin-bottom: 0; /* Set margin-bottom to 0, since h5's margin-top handles spacing */
+            line-height: 1;
+        }
+
+        /* --- THE FINAL FIX IS HERE --- */
+        /* This rule is more specific, so it will win over the rule in style.css */
+        .card .card-body > .badge {
+            position: static !important; /* Override position: absolute from style.css */
+            display: block !important; /* Make it take its own line */
+            width: max-content;
+            margin-bottom: 0;
+            line-height: 1;
+        }
+    </style>
+
+</head>
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<div class="container py-4">
+    <header class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h4 mb-1">Healthcare Information Center</h1>
+            <div class="muted">Directory of pet hospitals &amp; clinics in Bangladesh (sample data).</div>
+        </div>
+        <a href="/" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+    </header>
+
+    <div class="pane p-3 mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label mb-1">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+                    <input id="q" class="form-control" placeholder="Name, city, address, service…">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label mb-1">City</label>
+                <select id="city" class="form-select">
+                    <option value="">All cities</option>
+                    <option>Dhaka</option>
+                    <option>Chattogram</option>
+                    <option>Mymensingh</option>
+                    <option>Rajshahi</option>
+                    <option>Khulna</option>
+                    <option>Sylhet</option>
+                    <option>Barishal</option>
+                    <option>Rangpur</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button id="clear" class="btn btn-outline-primary" type="button"><i class="bi bi-eraser"></i> Clear
+                </button>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span id="resultCount" class="count-pill">0 results</span>
+            <div class="d-flex gap-2">
+                <button id="prevPage" class="btn btn-outline-primary btn-sm" disabled><i class="bi bi-chevron-left"></i>
+                    Prev
+                </button>
+                <span id="pageIndicator" class="muted small align-self-center">Page 1 of 1</span>
+                <button id="nextPage" class="btn btn-outline-primary btn-sm" disabled>Next <i
+                        class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="grid" class="row g-3">
+        <!-- Using original HTML with margin classes for simplicity of copy/paste -->
+        <!-- Dhaka -->
+        <div class="col-md-6 col-lg-4 center" data-city="Dhaka" data-tags="gulshan surgery vaccination pet shop">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Dhaka</span>
+                    <h5>Gulshan Pet Clinic</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> 3rd Fl, 34 Madani Ave, Gulshan-2</div>
+                    <div class="mb-2"><span class="chip">General Vet Care</span><span
+                            class="chip">Vaccination</span><span class="chip">Surgery</span><span
+                            class="chip">Pet Shop</span></div>
+                    <div class="mb-2"><a class="link-dark" href="tel:+8801715078434"><i class="bi bi-telephone"></i>
+                        +8801715-078434</a></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Gulshan+Pet+Clinic+Dhaka" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="https://gulshanpetclinic.com/"
+                           target="_blank"><i class="bi bi-globe2"></i> Website</a>
+                        <a class="btn btn-outline-primary btn-sm" href="https://www.facebook.com/GulshanPetClinic/"
+                           target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 center" data-city="Dhaka" data-tags="cvasu purbachal teaching companion">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Dhaka</span>
+                    <h5>CVASU Teaching & Training Hospital (Purbachal)</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Purbachal, Dhaka</div>
+                    <div class="mb-2"><span class="chip">Teaching</span><span class="chip">Companion Care</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=CVASU+Purbachal+Dhaka" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="https://www.facebook.com/cvasu.ac.bd/"
+                           target="_blank"><i class="bi bi-facebook"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ... other cards remain the same ... -->
+        <div class="col-md-6 col-lg-4 center" data-city="Dhaka" data-tags="khilgaon central veterinary emergency">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Dhaka</span>
+                    <h5>Central Veterinary Hospital (Small Animal Wing)</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> 67/2 North Bashabo, Khilgaon</div>
+                    <div class="mb-2"><span class="chip">Emergency</span><span class="chip">Surgery</span><span
+                            class="chip">General Vet Care</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm" href="https://goo.gl/maps/zmCpCY2wtkSZifVY7"
+                           target="_blank"><i class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 center" data-city="Dhaka" data-tags="banani diagnostics imaging">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Dhaka</span>
+                    <h5>Banani Companion Animal Clinic</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> House 12, Rd 11, Banani</div>
+                    <div class="mb-2"><span class="chip">Diagnostics</span><span class="chip">Imaging</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Banani+Companion+Animal+Clinic+Dhaka" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="#" target="_blank"><i class="bi bi-globe2"></i>
+                            Website</a>
+                        <a class="btn btn-outline-primary btn-sm" href="#" target="_blank"><i
+                                class="bi bi-facebook"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chattogram -->
+        <div class="col-md-6 col-lg-4 center" data-city="Chattogram" data-tags="city corporation vaccination">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Chattogram</span>
+                    <h5>Chattogram City Vet Services</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> City Corporation Area, Chattogram</div>
+                    <div class="mb-2"><span class="chip">General Vet Care</span><span class="chip">Vaccination</span>
+                    </div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Chattogram+City+Vet+Services" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="#" target="_blank"><i
+                                class="bi bi-facebook"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 center" data-city="Chattogram" data-tags="agrabad pet hospital surgery">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Chattogram</span>
+                    <h5>Agrabad Pet Hospital</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Lane 3, Agrabad</div>
+                    <div class="mb-2"><span class="chip">Surgery</span><span class="chip">Emergency</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Agrabad+Pet+Hospital+Chattogram" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="#" target="_blank"><i
+                                class="bi bi-facebook"></i> Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mymensingh -->
+        <div class="col-md-6 col-lg-4 center" data-city="Mymensingh" data-tags="bau teaching diagnostics">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Mymensingh</span>
+                    <h5>BAU Veterinary Teaching Hospital</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> BAU Campus, Mymensingh</div>
+                    <div class="mb-2"><span class="chip">Diagnostics</span><span class="chip">General Vet Care</span>
+                    </div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=BAU+Veterinary+Teaching+Hospital" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                        <a class="btn btn-outline-primary btn-sm" href="https://vth.bau.edu.bd/" target="_blank"><i
+                                class="bi bi-globe2"></i> Website</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 center" data-city="Mymensingh" data-tags="town hall companion vaccination">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Mymensingh</span>
+                    <h5>Mymensingh Companion Clinic</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Town Hall Rd, Mymensingh</div>
+                    <div class="mb-2"><span class="chip">Vaccination</span><span class="chip">Diagnostics</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Mymensingh+Companion+Clinic" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khulna -->
+        <div class="col-md-6 col-lg-4 center" data-city="Khulna" data-tags="moylapota grooming general care">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Khulna</span>
+                    <h5>Southern Pet Care</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> 45 Moylapota Mor, Khulna</div>
+                    <div class="mb-2"><span class="chip">Grooming</span><span class="chip">General Vet Care</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Moylapota+Mor+Khulna+Pet" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rajshahi -->
+        <div class="col-md-6 col-lg-4 center" data-city="Rajshahi" data-tags="university hospital animal surgery">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Rajshahi</span>
+                    <h5>RU Veterinary Hospital</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Rajshahi University Campus</div>
+                    <div class="mb-2"><span class="chip">Animal Surgery</span><span class="chip">Vaccination</span>
+                    </div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Rajshahi+University+Veterinary+Hospital" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 center" data-city="Rajshahi" data-tags="laxmipur diagnostics emergency">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Rajshahi</span>
+                    <h5>Laxmipur Pet Clinic</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Laxmipur, Rajshahi</div>
+                    <div class="mb-2"><span class="chip">Diagnostics</span><span class="chip">Emergency</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Laxmipur+Pet+Clinic+Rajshahi" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sylhet -->
+        <div class="col-md-6 col-lg-4 center" data-city="Sylhet" data-tags="zindabazar diagnostics emergency">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Sylhet</span>
+                    <h5>Sylhet Pet Health Center</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Zindabazar Rd, Sylhet</div>
+                    <div class="mb-2"><span class="chip">Diagnostics</span><span class="chip">Emergency</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Zindabazar+Sylhet+Pet+Health+Center" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barishal -->
+        <div class="col-md-6 col-lg-4 center" data-city="Barishal" data-tags="sadar road vaccination general care">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Barishal</span>
+                    <h5>Barishal Coastal Vet Center</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> Sadar Rd, Barishal</div>
+                    <div class="mb-2"><span class="chip">General Vet Care</span><span class="chip">Vaccination</span>
+                    </div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="https://maps.google.com/?q=Sadar+Road+Barishal+Vet+Center" target="_blank"><i
+                                class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rangpur -->
+        <div class="col-md-6 col-lg-4 center" data-city="Rangpur" data-tags="college road diagnostics surgery">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <span class="badge badge-soft">Rangpur</span>
+                    <h5>Rangpur Pet Hospital</h5>
+                    <div class="muted mb-2"><i class="bi bi-geo-alt"></i> College Rd, Rangpur</div>
+                    <div class="mb-2"><span class="chip">Diagnostics</span><span class="chip">Surgery</span></div>
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm" href="https://maps.google.com/?q=Rangpur+Pet+Hospital"
+                           target="_blank"><i class="bi bi-map"></i> Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /grid -->
+</div><!-- /container -->
+
+<script>
+    // Your Javascript is perfectly fine and requires no changes.
+    (function () {
+        const q = document.getElementById('q');
+        const city = document.getElementById('city');
+        const clearBtn = document.getElementById('clear');
+        const grid = document.getElementById('grid');
+        const cards = Array.from(grid.querySelectorAll('.center'));
+        const prev = document.getElementById('prevPage');
+        const next = document.getElementById('nextPage');
+        const indi = document.getElementById('pageIndicator');
+        const count = document.getElementById('resultCount');
+
+        let page = 1;
+        const PAGE_SIZE = 9;
+
+        function filtered() {
+            const qv = (q.value || '').toLowerCase().trim();
+            const cv = (city.value || '').toLowerCase().trim();
+            return cards.filter(c => {
+                const hay = (c.innerText + ' ' + (c.dataset.tags || '') + ' ' + (c.dataset.city || '')).toLowerCase();
+                const cityOK = !cv || (c.dataset.city || '').toLowerCase() === cv;
+                const qOK = !qv || hay.includes(qv);
+                return cityOK && qOK;
+            });
+        }
+
+        function render() {
+            const all = filtered();
+            const total = all.length;
+            const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (page > pages) page = pages;
+
+            cards.forEach(c => c.style.display = 'none');
+            const start = (page - 1) * PAGE_SIZE;
+            all.slice(start, start + PAGE_SIZE).forEach(c => c.style.display = '');
+
+            count.textContent = `${total} result${total !== 1 ? 's' : ''}`;
+            indi.textContent = `Page ${page} of ${pages}`;
+            prev.disabled = page <= 1;
+            next.disabled = page >= pages;
+
+            const empty = document.getElementById('emptyState');
+            if (total === 0) {
+                if (!empty) {
+                    const el = document.createElement('div');
+                    el.id = 'emptyState';
+                    el.className = 'col-12';
+                    el.innerHTML = '<div class="pane p-4 text-center"><div class="h5 mb-1">No matches found</div><div class="muted">Try clearing filters or another term.</div></div>';
+                    grid.appendChild(el);
+                }
+            } else if (empty) {
+                empty.remove();
+            }
+        }
+
+        const reset = () => {
+            page = 1;
+            render();
+        };
+        q.addEventListener('input', reset);
+        city.addEventListener('change', reset);
+        clearBtn.addEventListener('click', () => {
+            q.value = '';
+            city.value = '';
+            reset();
+        });
+        prev.addEventListener('click', () => {
+            if (page > 1) {
+                page--;
+                render();
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        });
+        next.addEventListener('click', () => {
+            page++;
+            render();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        render();
+    })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
