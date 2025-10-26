@@ -32,8 +32,10 @@ public class EventController {
     @GetMapping
     public String list(
             @RequestParam(value = "q", required = false) String q,
-            @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(value = "from", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(value = "to", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "12") int size,
             @RequestParam(value = "sort", defaultValue = "startDateTime,asc") String sort,
@@ -42,7 +44,9 @@ public class EventController {
         Sort s;
         if (sort.contains(",")) {
             String[] parts = sort.split(",", 2);
-            s = "desc".equalsIgnoreCase(parts[1]) ? Sort.by(parts[0]).descending() : Sort.by(parts[0]).ascending();
+            s = "desc".equalsIgnoreCase(parts[1])
+                    ? Sort.by(parts[0]).descending()
+                    : Sort.by(parts[0]).ascending();
         } else {
             s = Sort.by(sort).ascending();
         }
@@ -50,11 +54,17 @@ public class EventController {
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), s);
         Page<Event> events = eventService.list(q, from, to, pageable);
 
+        // Calculate pagination display range
+        int start = events.getTotalElements() == 0 ? 0 : (events.getNumber() * events.getSize()) + 1;
+        int end = Math.min((events.getNumber() + 1) * events.getSize(), (int) events.getTotalElements());
+
         model.addAttribute("events", events);
         model.addAttribute("q", q);
         model.addAttribute("from", from);
         model.addAttribute("to", to);
         model.addAttribute("sort", sort);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
         return "events/index";
     }
 
@@ -98,7 +108,7 @@ public class EventController {
         req.setImageUrl(e.getImageUrl());
         model.addAttribute("event", req);
         model.addAttribute("eventId", id);
-        return "events/update";
+        return "events/edit";
     }
 
     @PostMapping("/update/{id}")
@@ -129,10 +139,14 @@ public class EventController {
         model.addAttribute("isCreator", isCreator);
 
         if (username != null) {
-            Optional<User> maybeUser = e.getGoingUsers().stream().filter(u -> u.getUsername().equals(username)).findFirst();
+            Optional<User> maybeUser = e.getGoingUsers().stream()
+                    .filter(u -> u.getUsername().equals(username))
+                    .findFirst();
             model.addAttribute("isGoing", maybeUser.isPresent());
-            boolean isInterested = e.getInterestedUsers().stream().anyMatch(u -> u.getUsername().equals(username));
-            boolean isNotify = e.getNotifyUsers().stream().anyMatch(u -> u.getUsername().equals(username));
+            boolean isInterested = e.getInterestedUsers().stream()
+                    .anyMatch(u -> u.getUsername().equals(username));
+            boolean isNotify = e.getNotifyUsers().stream()
+                    .anyMatch(u -> u.getUsername().equals(username));
             model.addAttribute("isInterested", isInterested);
             model.addAttribute("isNotify", isNotify);
         } else {
@@ -142,7 +156,7 @@ public class EventController {
         }
 
         return "events/detail";
-        }
+    }
 
     @PostMapping("/{id}/going")
     public String toggleGoing(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
