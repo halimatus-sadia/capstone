@@ -1,7 +1,6 @@
 package com.example.capstone.pet;
 
 import com.example.capstone.auth.User;
-import com.example.capstone.pet.request.PetRequestStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -36,4 +35,6 @@ public class Pet {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private Boolean isRequestAccepted;
+
+    private String imageUrl;
 }

@@ -37,4 +37,6 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
 
     @Query("select new com.example.capstone.pet.chat.PetSummary(p.id, p.name, '') from Pet p where p.id=:id")
     Optional<PetSummary> findSummaryById(Long id);
+
+    List<Pet> findTop6ByOrderByCreatedAtDesc();
 }
