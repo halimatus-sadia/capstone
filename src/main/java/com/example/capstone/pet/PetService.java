@@ -1,5 +1,6 @@
 package com.example.capstone.pet;
 
+import com.example.capstone.common.MinIOService;
 import com.example.capstone.notification.DomainEventPublisher;
 import com.example.capstone.pet.request.*;
 import com.example.capstone.utils.AuthUtils;
@@ -18,16 +19,19 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 public class PetService {
+
     private final PetMapper petMapper;
     private final PetRepository petRepository;
     private final AuthUtils authUtils;
     private final PetRequestMapper petRequestMapper;
     private final PetRequestRepository petRequestRepository;
     private final DomainEventPublisher events;
+    private final MinIOService minIOService; // NEW
 
     // =========================
-    // Pets (existing)
+    // Pets
     // =========================
+
     public Page<PetResponseDto> getFilteredPets(
             String species,
             String breed,
@@ -36,9 +40,10 @@ public class PetService {
             int page,
             int size,
             boolean ownPets,
-            String sort /*e.g. NEWEST, PRICE_ASC, PRICE_DESC, AGE_ASC, AGE_DESC, NAME_ASC, NAME_DESC*/) {
+            String sort) {
 
         Pageable pageable = PageRequest.of(page, size, mapSort(sort));
+
         return petRepository.findAllPets(
                         NullHandlerUtils.nullIfBlank(species),
                         NullHandlerUtils.nullIfBlank(breed),
@@ -46,7 +51,8 @@ public class PetService {
                         NullHandlerUtils.nullIfBlank(location),
                         authUtils.getLoggedInUser().getId(),
                         ownPets,
-                        pageable)
+                        pageable
+                )
                 .map(petMapper::toDto);
     }
 
@@ -60,13 +66,21 @@ public class PetService {
     public PetRequestStatus getActiveRequestStatusForPet(Long petId) {
         return petRequestRepository
                 .findFirstByPetIdAndStatusInOrderByCreatedAtDesc(
-                        petId, List.of(PetRequestStatus.PENDING, PetRequestStatus.ACCEPTED))
+                        petId,
+                        List.of(PetRequestStatus.PENDING, PetRequestStatus.ACCEPTED)
+                )
                 .map(PetRequest::getStatus)
                 .orElse(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void createPetListing(PetSaveRequest dto) {
+        // Handle image upload to MinIO if present
+        if (dto.getImageFile() != null && !dto.getImageFile().isEmpty()) {
+            String objectName = minIOService.uploadFile(dto.getImageFile());
+            dto.setImageUrl(objectName);
+        }
+
         petRepository.save(petMapper.toEntity(dto));
     }
 
@@ -118,7 +132,9 @@ public class PetService {
         PetRequest request = petRequestRepository
                 .findById(dto.getPetRequestId())
                 .orElseThrow(() -> new RuntimeException("Pet request not found."));
+
         Pet pet = request.getPet();
+
         if (dto.getStatus() == PetRequestStatus.PENDING) {
             throw new RuntimeException("Request can't be PENDING.");
         }
@@ -130,14 +146,13 @@ public class PetService {
             pet.setIsRequestAccepted(true);
             petRepository.save(pet);
         }
+
         request.setStatus(dto.getStatus());
         petRequestRepository.save(request);
     }
 
     /**
      * Paginated & filterable list of requests for the admin/owner view.
-     * - Filters by status when provided (PENDING/ACCEPTED/REJECTED); otherwise returns all.
-     * - Sorted by createdAt DESC, id DESC for stable pagination.
      */
     public Page<PetRequestRes> getRequests(PetRequestStatus status, String view, int page, int size) {
         Pageable pageable = PageRequest.of(
@@ -170,6 +185,15 @@ public class PetService {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
         ensureOwnerOrThrow(pet);
+
+        // If a new file was uploaded, replace image
+        if (dto.getImageFile() != null && !dto.getImageFile().isEmpty()) {
+            String objectName = minIOService.uploadFile(dto.getImageFile());
+            dto.setImageUrl(objectName);
+        } else {
+            // No new file, keep existing URL
+            dto.setImageUrl(pet.getImageUrl());
+        }
 
         petMapper.updatePet(dto, pet);
         petRepository.save(pet);

@@ -1,6 +1,7 @@
 package com.example.capstone.pet;
 
 import com.example.capstone.auth.UserMapper;
+import com.example.capstone.common.MinIOService;
 import com.example.capstone.utils.AuthUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.mapstruct.Mapper;
@@ -16,6 +17,10 @@ public abstract class PetMapper {
     @Autowired
     protected AuthUtils authUtils;
 
+    @Autowired
+    protected MinIOService minIOService;
+
+    @Mapping(target = "imageUrl", expression = "java(minIOService.constructFullUrl(pet.getImageUrl()))")
     public abstract PetResponseDto toDto(Pet pet);
 
     //    @Mapping(target = "isRequestAccepted", defaultValue = "false")
@@ -25,6 +30,7 @@ public abstract class PetMapper {
     @Mapping(target = "vaccinated", expression = "java(BooleanUtils.isTrue(dto.getVaccinated()))")
     public abstract Pet toEntity(PetSaveRequest dto);
 
+    @Mapping(target = "imageUrl", expression = "java(minIOService.constructFullUrl(pet.getImageUrl()))")
     public abstract PetSaveRequest toSaveRequest(Pet pet);
 
     public abstract void updatePet(PetSaveRequest dto, @MappingTarget Pet pet);

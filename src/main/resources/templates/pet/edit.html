@@ -24,11 +24,11 @@
         <form class="card form"
               th:action="@{'/pets/' + ${petId}}"
               th:object="${pet}"
-              method="post" novalidate>
+              method="post"
+              enctype="multipart/form-data"
+              novalidate>
             <input type="hidden" name="_method" value="put"/>
 
-            <!-- SAME FORM BODY AS CREATE (copy/paste your create form fields) -->
-            <!-- Top split -->
             <div class="form-grid">
                 <div class="stack">
                     <h2 class="form-section">Basic info</h2>
@@ -102,18 +102,36 @@
                 <div class="stack">
                     <h2 class="form-section">Photos & description</h2>
 
-                    <div class="dropzone" aria-label="Image upload area (coming soon)">
-                        <div class="img-skeleton tall"></div>
-                        <p class="muted">Add/replace photos later • Drag & drop coming soon</p>
-                    </div>
+                    <label class="field">
+                        <span>Pet photo</span>
+                        <div class="dropzone">
+                            <!-- Existing image preview -->
+                            <img th:if="${pet.imageUrl != null}"
+                                 th:src="${pet.imageUrl}"
+                                 alt="Current photo"
+                                 class="img-preview tall">
+
+                            <div class="img-skeleton tall" th:if="${pet.imageUrl == null}"></div>
+
+                            <!-- New upload -->
+                            <input type="file"
+                                   id="imageFile"
+                                   name="imageFile"
+                                   accept="image/*"
+                                   class="file-input">
+
+                            <p class="muted tiny">Upload a new photo to replace the current one.</p>
+                        </div>
+                    </label>
 
                     <label class="field" for="description">
                         <span>Description</span>
                         <textarea id="description" th:field="*{description}" rows="6"
                                   placeholder="Temperament, health, behavior, quirks..."></textarea>
                         <div class="muted tiny" id="desc-count">0 / 500</div>
-                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description
-                            error</small>
+                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                            Description error
+                        </small>
                     </label>
                 </div>
             </div>

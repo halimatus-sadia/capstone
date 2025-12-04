@@ -16,12 +16,15 @@ spring:
     multipart:
       max-file-size: 1000MB
       max-request-size: 1500MB
+      enabled: true
 
   thymeleaf:
     cache: false
 
 server:
   port: 8080
+  tomcat:
+    max-part-count: 5000
 
 minio:
   url: http://localhost:9000

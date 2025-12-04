@@ -43,6 +43,10 @@ public class MinIOService {
     // Upload a file to MinIO bucket
     public String uploadFile(MultipartFile file) {
         try {
+            if (file == null || file.isEmpty()) {
+                return null;
+            }
+
             // Check if the bucket exists, if not, create it
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
@@ -68,7 +72,8 @@ public class MinIOService {
                         .build());
             }
 
-            String randomName = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+            String randomName = UUID.randomUUID() + "." +
+                    FilenameUtils.getExtension(file.getOriginalFilename());
 
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucketName)
@@ -77,6 +82,7 @@ public class MinIOService {
                     .contentType(file.getContentType())
                     .build());
 
+            // return the object name (we'll wrap it into a full URL)
             return randomName;
 
         } catch (MinioException e) {
@@ -89,8 +95,13 @@ public class MinIOService {
     // Delete a file from MinIO bucket
     public void deleteFile(String filePath) {
         try {
-            // Delete the file from the MinIO bucket
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(filePath).build());
+            if (!StringUtils.hasText(filePath)) {
+                return;
+            }
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(filePath)
+                    .build());
             System.out.println("File deleted successfully: " + filePath);
         } catch (MinioException e) {
             throw new RuntimeException("MinIO error occurred while deleting the file: " + e.getMessage(), e);

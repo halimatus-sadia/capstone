@@ -21,4 +21,6 @@ public class PetResponseDto {
     private PetStatus status;
     private LocalDateTime createdAt;
     private UserResponse owner;
+    private String imageUrl;
+
 }

@@ -20,8 +20,13 @@
     </section>
 
     <section class="container">
-        <form class="card form" th:action="@{/pets}" th:object="${pet}" method="post" novalidate>
-            <!-- Top split -->
+        <form class="card form"
+              th:action="@{/pets}"
+              th:object="${pet}"
+              method="post"
+              enctype="multipart/form-data"
+              novalidate>
+
             <div class="form-grid">
                 <!-- LEFT: Core info -->
                 <div class="stack">
@@ -76,13 +81,7 @@
                     </div>
 
                     <div class="grid-2">
-                        <!--<label class="switch" >
-                            <input type="checkbox" th:field="*{vaccinated}">
-                            <span class="slider" aria-hidden="true"></span>
-                            <span class="switch-label">Vaccinated</span>
-                        </label>-->
                         <label class="switch">
-                            <!--                            <input type="checkbox" th:field="*{vaccinated}">-->
                             <input type="checkbox" name="vaccinated" id="vaccinatedCheckbox"
                                    th:checked="${pet.vaccinated}"/>
                             <span class="slider"></span>
@@ -103,24 +102,35 @@
                 <div class="stack">
                     <h2 class="form-section">Photos & description</h2>
 
-                    <!-- Placeholder for image upload – wire later -->
-                    <div class="dropzone" aria-label="Image upload area (coming soon)">
-                        <div class="img-skeleton tall"></div>
-                        <p class="muted">Add photos later • Drag & drop coming soon</p>
-                    </div>
+                    <label class="field">
+                        <span>Pet photo</span>
+                        <div class="dropzone">
+                            <div class="img-skeleton tall" id="imagePreviewPlaceholder"></div>
+                            <img id="imagePreview" class="img-preview tall" style="display:none;" alt="Preview">
+
+                            <input type="file"
+                                   id="imageFile"
+                                   name="imageFile"
+                                   accept="image/*"
+                                   th:field="*{imageFile}"
+                                   class="file-input">
+
+                            <p class="muted tiny">Upload a clear photo • JPG/PNG</p>
+                        </div>
+                    </label>
 
                     <label class="field" for="description">
                         <span>Description</span>
                         <textarea id="description" th:field="*{description}" rows="6"
                                   placeholder="Temperament, health, behavior, quirks..."></textarea>
                         <div class="muted tiny" id="desc-count">0 / 500</div>
-                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description
-                            error</small>
+                        <small class="err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                            Description error
+                        </small>
                     </label>
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="form-actions">
                 <a class="btn btn-soft" th:href="@{/pets}">Cancel</a>
                 <button class="btn btn-primary" type="submit">Create listing</button>
@@ -129,7 +139,6 @@
 
         <div class="spacer-24"></div>
     </section>
-
 </main>
 
 <footer class="site-footer">

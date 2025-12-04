@@ -1,198 +1,156 @@
-/* Card wrapper for forms */
-.card.form {
-    background: var(--panel);
-    border: 1px solid #e5e7eb;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 20px;
+/* Form container */
+
+.hero {
+    padding: 2.5rem 0 1.5rem;
 }
 
-/* Section labels inside form */
-.form-section {
-    margin: 0 0 10px;
-    font-size: 18px;
+.form {
+    padding: 1.7rem 1.8rem 2rem;
+    border-radius: 1.5rem;
+    background: #ffffff;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);
 }
 
-/* Grids for form layout */
 .form-grid {
     display: grid;
-    grid-template-columns: 1.1fr .9fr;
-    gap: var(--grid-gap);
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.6fr);
+    gap: 2rem;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 960px) {
     .form-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
-.grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-@media (max-width: 800px) {
-    .grid-3 {
-        grid-template-columns: 1fr 1fr;
-    }
+.form-section {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
-.align-end {
-    align-items: end;
-}
+/* Generic field */
 
-/* Field wrapper */
 .field {
     display: flex;
     flex-direction: column;
-    position: relative;
+    gap: 0.35rem;
 }
 
-/* Input styling */
-.field input,
+.field span:first-child {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.field input[type="text"],
+.field input[type="number"],
 .field select,
 .field textarea {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-    border-color: var(--primary);
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
     outline: none;
 }
 
-/* Error messages */
-.field .err {
-    color: var(--danger);
-    margin-top: 4px;
-    font-size: 0.85rem;
-    display: block;
-    min-height: 1em; /* Always reserves space to avoid layout shift */
+.field textarea {
+    resize: vertical;
 }
 
-/* Optional: visually separate hint text */
-.field .hint {
-    display: block;
-    margin-top: 4px;
-    color: #777;
-    font-size: 0.85rem;
-}
+/* Switch */
 
-/* Required field asterisk */
-.req {
-    color: var(--danger);
-    font-style: normal;
-}
-
-/* Dropzone placeholder */
-.dropzone {
-    background: var(--soft);
-    border: 1px dashed #d1d5db;
-    border-radius: var(--radius);
-    padding: 14px;
-    text-align: center;
-}
-
-/* Description character counter */
-#desc-count {
-    font-size: 0.75rem;
-    text-align: right;
-    color: #777;
-    margin-top: 0.25rem;
-}
-
-/* Form action buttons */
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 16px;
-}
-
-.tiny {
-    font-size: 12px;
-}
-
-.spacer-24 {
-    height: 24px;
-}
-
-/* Switch toggle styling */
 .switch {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    user-select: none;
+    gap: 0.45rem;
 }
 
 .switch input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    z-index: 2;
-    cursor: pointer;
-    margin: 0;
-    appearance: none;
-    -webkit-appearance: none;
+    display: none;
 }
 
-/* Slider track */
 .switch .slider {
-    position: relative;
-    z-index: 1;
-    width: 44px;
-    height: 24px;
+    width: 40px;
+    height: 22px;
     background: #e5e7eb;
-    border: 1px solid #d1d5db;
     border-radius: 999px;
-    transition: 0.2s;
-    flex: 0 0 auto;
+    position: relative;
+    cursor: pointer;
 }
 
-/* Slider knob */
-.switch .slider::after {
+.switch .slider::before {
     content: "";
     position: absolute;
-    top: 1px;
-    left: 1px;
-    width: 20px;
-    height: 20px;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 50%;
-    transition: 0.2s;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #ffffff;
+    transition: transform 0.18s ease;
 }
 
-/* Checked state */
 .switch input:checked + .slider {
-    background: var(--primary);
-    border-color: var(--primary-600);
+    background: #4ade80;
 }
 
-.switch input:checked + .slider::after {
-    transform: translateX(20px);
-    border-color: var(--primary-600);
-}
-
-/* Focus ring */
-.switch input:focus-visible + .slider {
-    box-shadow: var(--ring);
+.switch input:checked + .slider::before {
+    transform: translateX(18px);
 }
 
 .switch-label {
-    color: var(--text);
+    font-size: 0.85rem;
 }
 
-/* Optional: non-breaking space in empty error to preserve alignment */
-.field .err:empty::after {
-    content: "\00a0";
+/* Dropzone + image preview */
+
+.dropzone {
+    border-radius: 1rem;
+    border: 1px dashed #d1d5db;
+    background: #f9fafb;
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Placeholder skeleton and preview share same size */
+.dropzone .img-skeleton.tall,
+.dropzone .img-preview.tall {
+    width: 100%;
+    max-width: 360px;
+    height: 220px;
+    border-radius: 0.9rem;
+    background: #e5e7eb;
+    object-fit: cover;
+    overflow: hidden;
+}
+
+/* hide the real file input, style via dropzone text or just click on it */
+.dropzone .file-input {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+}
+
+/* Description counter */
+
+#desc-count {
+    margin-top: 0.1rem;
+}
+
+/* Actions */
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
 }

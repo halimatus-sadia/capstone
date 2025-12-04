@@ -12,12 +12,20 @@
 
 <main class="container detail">
     <div class="detail-media">
-        <!-- Replace with real image(s) when available -->
-        <div class="img-skeleton tall"></div>
+        <div th:if="${pet.imageUrl != null}" class="img-wrapper">
+            <img th:src="${pet.imageUrl}"
+                 th:alt="'Photo of ' + ${pet.name}"
+                 class="img-main tall">
+        </div>
+        <div th:if="${pet.imageUrl == null}">
+            <div class="img-skeleton tall"></div>
+        </div>
+
+        <!-- Thumbs - you can expand to multiple images later -->
         <div class="thumbs">
-            <div class="img-skeleton"></div>
-            <div class="img-skeleton"></div>
-            <div class="img-skeleton"></div>
+            <div class="img-skeleton" th:if="${pet.imageUrl == null}"></div>
+            <div class="img-skeleton" th:if="${pet.imageUrl == null}"></div>
+            <div class="img-skeleton" th:if="${pet.imageUrl == null}"></div>
         </div>
     </div>
 
@@ -41,7 +49,7 @@
             </div>
             <div class="info">
                 <span class="label">Age</span>
-                <span th:text="${pet.age} != null ? ${pet.age} + ' years' : '—'">2 years</span>
+                <span th:text="${pet.age != null} ? ${pet.age} + ' years' : '—'">2 years</span>
             </div>
             <div class="info">
                 <span class="label">Vaccinated</span>
@@ -65,12 +73,7 @@
             </p>
         </section>
 
-        <!--    <div class="cta-row">
-                <a class="btn btn-primary" href="#contact">Contact owner</a>
-                <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>
-            </div>-->
-
-        <!-- Placeholder: if you have owner profile or message flow -->
+        <!-- Contact owner (only if not owner) -->
         <section id="contact" class="contact-card" th:if="${!isOwner}">
             <div class="card owner-info">
                 <div class="owner-profile">
@@ -100,35 +103,31 @@
             </div>
         </section>
 
-
         <!-- Request Section -->
         <section class="request-card">
             <h3>Send a Request</h3>
 
-            <!-- Case 1: Owner viewing their own pet -->
             <div th:if="${isOwner}">
                 <p class="muted">You are the owner of this pet. You cannot send a request to yourself.</p>
                 <button class="btn btn-soft" disabled>Request Disabled</button>
             </div>
 
-            <!-- Case 2: Non-owner but has an active request -->
             <div th:if="${!isOwner and hasActiveRequest}">
                 <p class="muted">
                     This pet has
                     <b>
-                <span class="chip"
-                      th:classappend="${activeReqStatus?.name() == 'PENDING'} ? ' chip-warn' :
+                        <span class="chip"
+                              th:classappend="${activeReqStatus?.name() == 'PENDING'} ? ' chip-warn' :
                                       (${activeReqStatus?.name() == 'ACCEPTED'} ? ' chip-ok' : '')"
-                      th:text="${#strings.capitalize(activeReqStatus?.name()?.toLowerCase())}">
-                    Pending
-                </span>
+                              th:text="${#strings.capitalize(activeReqStatus?.name()?.toLowerCase())}">
+                            Pending
+                        </span>
                     </b> request.
                     New requests are disabled.
                 </p>
                 <button class="btn btn-soft" disabled>Request Disabled</button>
             </div>
 
-            <!-- Case 3: Normal request form -->
             <div th:if="${!isOwner and !hasActiveRequest}">
                 <p class="muted">
                     Interested in this pet? Submit a request to the owner
@@ -148,14 +147,10 @@
             </div>
         </section>
 
-        <!-- detail.html -->
         <div class="cta-row">
-            <!--            <a class="btn btn-outline" href="#contact">Contact owner</a>-->
-            <!--            <a class="btn btn-outline" th:href="@{/pets}">Back to listings</a>-->
             <a class="btn" th:if="${isOwner}" th:href="@{'/pets/' + ${pet.id} + '/edit'}">Edit</a>
         </div>
 
-        <!-- Chat widget root -->
         <div id="chat-widget-root"></div>
 
         <link rel="stylesheet" th:href="@{/css/pet_chat.css}">

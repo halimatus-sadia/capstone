@@ -2,9 +2,11 @@ package com.example.capstone.pet;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class PetSaveRequest {
+
     @NotBlank(message = "Name is required")
     @Size(max = 50, message = "Name cannot be longer than 50 characters")
     private String name;
@@ -37,4 +39,10 @@ public class PetSaveRequest {
 
     @NotNull(message = "Status is required")
     private PetStatus status;
+
+    // NEW: uploaded file
+    private MultipartFile imageFile;
+
+    // NEW: resolved URL stored on Pet entity
+    private String imageUrl;
 }

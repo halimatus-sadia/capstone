@@ -12,7 +12,6 @@
 <div th:replace="fragments/nav :: navbar"></div>
 
 <main>
-    <!-- Hero -->
     <section class="hero">
         <div class="container">
             <h1>My Own Pets</h1>
@@ -22,13 +21,7 @@
     <section class="container layout">
         <!-- Filters -->
         <aside class="filters">
-            <div class="filters-head">
-                <h2>Filters</h2>
-                <!-- TODO: handle responsive layout -->
-                <!--<button class="btn btn-ghost sm:hidden" type="button"
-                        onclick="document.querySelector('.filters').classList.toggle('open')">Close
-                </button>-->
-            </div>
+            <div class="filters-head"><h2>Filters</h2></div>
 
             <form method="get" class="stack md:sticky md:top-20">
                 <label class="field">
@@ -57,14 +50,13 @@
                     </select>
                 </label>
 
-                <!-- keep current paging/sort when applying filters -->
                 <input type="hidden" name="page" th:value="${pets.number}">
                 <input type="hidden" name="size" th:value="${size}">
                 <input type="hidden" name="sort" th:value="${sort}">
 
                 <div class="grid-2">
                     <button class="btn btn-primary" type="submit">Apply</button>
-                    <a class="btn btn-ghost" th:href="@{/pets}">Reset</a>
+                    <a class="btn btn-ghost" th:href="@{/pets/own-pet-list}">Reset</a>
                 </div>
             </form>
         </aside>
@@ -73,14 +65,11 @@
         <section class="results">
             <div class="results-head">
                 <div>
-                    <h2 th:text="${pets.totalElements == 0} ? '0 results' : ${rangeStart} + '–' + ${rangeEnd} + ' of ' + ${pets.totalElements} + ' results'">
-                        0 results</h2>
+                    <h2 th:text="${pets.totalElements == 0} ? '0 results' : ${rangeStart} + '–' + ${rangeEnd} + ' of ' + ${pets.totalElements} + ' results'"></h2>
                     <p class="muted">Tip: combine species + location for sharper results.</p>
                 </div>
 
-                <!-- Toolbar: Sort + Per page -->
                 <div class="right">
-                    <!-- Sort -->
                     <form method="get" class="field compact">
                         <span>Sort</span>
                         <input type="hidden" name="species" th:value="${species}">
@@ -92,8 +81,7 @@
                         <select name="sort" onchange="this.form.submit()">
                             <option th:value="NEWEST" th:selected="${sort}=='NEWEST'">Newest</option>
                             <option th:value="PRICE_ASC" th:selected="${sort}=='PRICE_ASC'">Price: Low to High</option>
-                            <option th:value="PRICE_DESC" th:selected="${sort}=='PRICE_DESC'">Price: High to Low
-                            </option>
+                            <option th:value="PRICE_DESC" th:selected="${sort}=='PRICE_DESC'">Price: High to Low</option>
                             <option th:value="AGE_ASC" th:selected="${sort}=='AGE_ASC'">Age: Young to Old</option>
                             <option th:value="AGE_DESC" th:selected="${sort}=='AGE_DESC'">Age: Old to Young</option>
                             <option th:value="NAME_ASC" th:selected="${sort}=='NAME_ASC'">Name: A → Z</option>
@@ -101,7 +89,6 @@
                         </select>
                     </form>
 
-                    <!-- Page size -->
                     <form method="get" class="field compact page-size-form">
                         <span>Per page</span>
                         <input type="hidden" name="species" th:value="${species}">
@@ -117,33 +104,38 @@
                             <option th:value="48" th:selected="${size == 48}">48</option>
                         </select>
                     </form>
-
-                    <!--<button class="btn btn-outline sm:hidden" type="button"
-                            onclick="document.querySelector('.filters').classList.toggle('open')">Filters
-                    </button>-->
                 </div>
             </div>
 
+            <!-- Cards -->
             <div class="cards" th:classappend="${#lists.isEmpty(pets.content)} ? ' empty'">
                 <div class="empty-state" th:if="${#lists.isEmpty(pets.content)}">
                     <div class="emoji">😿</div>
                     <h3>No pets match your filters</h3>
                     <p class="muted">Try broadening your search or resetting filters.</p>
-                    <a class="btn btn-primary" th:href="@{/pets}">See all pets</a>
+                    <a class="btn btn-primary" th:href="@{/pets/own-pet-list}">See all pets</a>
                 </div>
 
                 <article class="card" th:each="pet : ${pets.content}">
+                    <!-- make media a simple block, badge inside it -->
                     <a class="media" th:href="@{'/pets/' + ${pet.id}}" aria-label="View details">
-                        <!-- If you later store imageUrl, replace with <img th:src="${pet.imageUrl}"> -->
-                        <div class="img-skeleton"></div>
-                        <span class="badge badge-status"
+                        <img th:if="${pet.imageUrl != null}"
+                             th:src="${pet.imageUrl}"
+                             th:alt="'Photo of ' + ${pet.name}"
+                             class="card-img">
+                        <div class="img-skeleton" th:if="${pet.imageUrl == null}"></div>
+
+                        <!-- NOTE: NO global .badge class here -->
+                        <span class="own-badge-status"
                               th:classappend="' status-' + ${pet.status}"
-                              th:text="${#strings.replace(pet.status.name(),'_',' ')}">FOR SALE</span>
+                              th:text="${#strings.replace(pet.status.name(),'_',' ')}">
+                            FOR SALE
+                        </span>
                     </a>
 
                     <div class="card-body">
                         <div class="card-top">
-                            <h3 class="title" th:text="${pet.name}">Mittens</h3>
+                            <h3 class="title" th:text="${pet.name}">Pet name</h3>
                             <div class="price"
                                  th:text="${pet.price != null} ? ${#numbers.formatDecimal(pet.price,1,'COMMA',2,'POINT')} + ' ৳' : '—'">
                                 ৳
@@ -151,21 +143,16 @@
                         </div>
 
                         <p class="meta">
-                            <span th:text="${pet.species}">Cat</span> •
-                            <span th:text="${pet.breed}">Persian</span> •
+                            <span th:text="${pet.species}">Species</span> •
+                            <span th:text="${pet.breed}">Breed</span> •
                             <span class="chip" th:classappend="${pet.vaccinated} ? ' chip-ok' : ' chip-warn'">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                  <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
-                                </svg>
-                                <span th:text="${pet.vaccinated} ? 'Vaccinated' : 'Not vaccinated'">Vaccinated</span>
+                                <span th:text="${pet.vaccinated} ? 'Vaccinated' : 'Not vaccinated'"></span>
                             </span>
                         </p>
 
                         <p class="location">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5.001 2.5 2.5 0 0 1 0 5z"/>
-                            </svg>
-                            <span th:text="${pet.location}">Dhaka</span>
+                            <span>📍</span>
+                            <span th:text="${pet.location}">Location</span>
                         </p>
 
                         <div class="card-actions">
@@ -175,36 +162,32 @@
                 </article>
             </div>
 
-            <!-- Pagination -->
             <nav class="pagination" th:if="${pets.totalPages > 1}">
                 <ul>
-                    <!-- Prev -->
                     <li>
                         <a class="btn btn-outline"
                            th:classappend="${pets.first} ? ' disabled'"
-                           th:href="@{/pets(page=${pets.number-1}, size=${size}, sort=${sort},
-                                           species=${species}, breed=${breed}, status=${status}, location=${location})}"
-                           aria-label="Previous">‹ Prev</a>
+                           th:href="@{/pets/own-pet-list(page=${pets.number-1}, size=${size}, sort=${sort},
+                                           species=${species}, breed=${breed}, status=${status}, location=${location})}">‹
+                            Prev</a>
                     </li>
 
-                    <!-- Numbers with ellipses -->
                     <li th:each="p : ${pageNumbers}">
-                        <span class="gap" th:if="${p instanceof T(java.lang.String)}" th:text="${p}">…</span>
+                        <span class="gap" th:if="${p instanceof T(java.lang.String)}" th:text="${p}"></span>
                         <a class="btn btn-ghost"
                            th:if="${p instanceof T(java.lang.Integer)}"
                            th:classappend="${p} == ${pets.number} ? ' active'"
                            th:text="${p + 1}"
-                           th:href="@{/pets(page=${p}, size=${size}, sort=${sort},
-                                           species=${species}, breed=${breed}, status=${status}, location=${location})}">1</a>
+                           th:href="@{/pets/own-pet-list(page=${p}, size=${size}, sort=${sort},
+                                           species=${species}, breed=${breed}, status=${status}, location=${location})}"></a>
                     </li>
 
-                    <!-- Next -->
                     <li>
                         <a class="btn btn-outline"
                            th:classappend="${pets.last} ? ' disabled'"
-                           th:href="@{/pets(page=${pets.number+1}, size=${size}, sort=${sort},
-                                           species=${species}, breed=${breed}, status=${status}, location=${location})}"
-                           aria-label="Next">Next ›</a>
+                           th:href="@{/pets/own-pet-list(page=${pets.number+1}, size=${size}, sort=${sort},
+                                           species=${species}, breed=${breed}, status=${status}, location=${location})}">Next
+                            ›</a>
                     </li>
                 </ul>
             </nav>
