@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <title>PetPort — Adopt. Connect. Care.</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
-        /* HERO */
+        /* ===========================
+           HERO SECTION
+        ============================ */
         .hero {
             background: linear-gradient(180deg, rgba(240, 247, 255, 1) 0%, #fff 100%);
             text-align: center;
@@ -35,7 +38,9 @@
             flex-wrap: wrap;
         }
 
-        /* Sections */
+        /* ===========================
+           GENERIC SECTIONS
+        ============================ */
         .section {
             padding: 70px 0;
         }
@@ -52,7 +57,9 @@
             font-weight: 700;
         }
 
-        /* Feature grid */
+        /* ===========================
+           FEATURE CARDS
+        ============================ */
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -79,7 +86,9 @@
             margin-bottom: 16px;
         }
 
-        /* Card grids */
+        /* ===========================
+           GRID FOR LISTINGS
+        ============================ */
         .grid-3 {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -91,6 +100,8 @@
             background: var(--panel);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
         }
 
         .card .title {
@@ -98,15 +109,60 @@
             font-weight: 600;
         }
 
-        .img-cover {
+        /* ===========================
+           FIXED MEDIA BOX FOR PET CARDS
+        ============================ */
+        .card-media {
             width: 100%;
             aspect-ratio: 4 / 3;
-            object-fit: cover;
             border-radius: var(--radius);
+            background: var(--soft);
+            overflow: hidden;
             margin-bottom: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Contact */
+        .card-media img.img-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Placeholder when image missing */
+        .card-media-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%);
+            background-size: 400% 100%;
+            animation: shimmer 2s infinite;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .card-media-placeholder i {
+            font-size: 1.6rem;
+            opacity: 0.7;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 100% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        /* Contact card */
         .contact-card {
             text-align: center;
             background: var(--panel);
@@ -129,7 +185,9 @@
 
 <main>
 
-    <!-- HERO -->
+    <!-- ===========================
+         HERO
+    ============================ -->
     <section class="hero">
         <div class="container">
             <h1>Welcome to <span style="color: var(--primary)">PetPort</span></h1>
@@ -145,7 +203,9 @@
     </section>
 
 
-    <!-- FEATURES -->
+    <!-- ===========================
+         FEATURE SECTION
+    ============================ -->
     <section class="container section">
         <div class="feature-grid">
             <div class="feature-card">
@@ -175,7 +235,9 @@
     </section>
 
 
-    <!-- LATEST PET LISTINGS -->
+    <!-- ===========================
+         LATEST PET LISTINGS (FIXED)
+    ============================ -->
     <section class="container section">
         <div class="section-header">
             <h2>Latest Pet Listings</h2>
@@ -183,20 +245,30 @@
         </div>
 
         <div class="grid-3">
+
             <div class="card" th:each="pet : ${latestPets}">
-                <img th:if="${pet.imageUrl}" th:src="${pet.imageUrl}" class="img-cover" alt="pet">
+
+                <!-- FIXED MEDIA WRAPPER -->
+                <div class="card-media">
+                    <!-- If pet has an image -->
+                    <img th:if="${pet.imageUrl != null}"
+                         th:src="${pet.imageUrl}"
+                         class="img-cover"
+                         alt="Pet">
+
+                    <!-- If pet has NO image -->
+                    <div th:if="${pet.imageUrl == null}" class="card-media-placeholder">
+                        <i class="bi bi-image"></i>
+                        <span>No photo added</span>
+                    </div>
+                </div>
 
                 <div class="card-body">
                     <h3 class="title" th:text="${pet.name}">Pet name</h3>
 
-                    <p class="muted"
-                       th:text="${pet.species} + ' • ' + ${pet.breed}">
-                        Species • Breed
-                    </p>
+                    <p class="muted" th:text="${pet.species} + ' • ' + ${pet.breed}">Species • Breed</p>
 
-                    <p class="muted" th:text="${#strings.abbreviate(pet.description, 100)}">
-                        Short description...
-                    </p>
+                    <p class="muted" th:text="${#strings.abbreviate(pet.description, 100)}">Description</p>
 
                     <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
                         <span class="muted" th:text="${pet.location}">Location</span>
@@ -204,11 +276,14 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 
 
-    <!-- COMMUNITY HIGHLIGHTS -->
+    <!-- ===========================
+         COMMUNITY
+    ============================ -->
     <section class="container section" style="background:#fafbff;border-radius:var(--radius);padding:60px;">
         <div class="section-header">
             <h2>Community Highlights</h2>
@@ -219,23 +294,20 @@
             <div class="card" th:each="post : ${latestPosts}">
                 <h3 class="title" th:text="${post.title}">Post title</h3>
 
-                <p class="muted"
-                   th:text="${#strings.abbreviate(post.content, 120)}">
-                    Short preview…
-                </p>
+                <p class="muted" th:text="${#strings.abbreviate(post.content, 120)}"></p>
 
                 <p class="muted" style="margin-top:10px;">
                     Posted on
-                    <span th:text="${#temporals.format(post.createdAt,'dd MMM yyyy')}">
-                        10 Nov 2024
-                    </span>
+                    <span th:text="${#temporals.format(post.createdAt,'dd MMM yyyy')}"></span>
                 </p>
             </div>
         </div>
     </section>
 
 
-    <!-- UPCOMING EVENTS -->
+    <!-- ===========================
+         UPCOMING EVENTS
+    ============================ -->
     <section class="container section">
         <div class="section-header">
             <h2>Upcoming Events</h2>
@@ -244,23 +316,25 @@
 
         <div class="grid-3">
             <div class="card" th:each="e : ${upcomingEvents}">
-                <img th:if="${e.imageUrl}" th:src="${e.imageUrl}" class="img-cover" alt="event">
+                <div class="card-media">
+                    <img th:if="${e.imageUrl}" th:src="${e.imageUrl}" class="img-cover" alt="event">
+
+                    <div th:if="${e.imageUrl == null}" class="card-media-placeholder">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>No event image</span>
+                    </div>
+                </div>
 
                 <div class="card-body">
                     <h3 class="title" th:text="${e.title}">Event title</h3>
 
-                    <p class="muted"
-                       th:text="${#strings.abbreviate(e.description, 100)}">
-                        Short description…
-                    </p>
+                    <p class="muted" th:text="${#strings.abbreviate(e.description, 100)}"></p>
 
                     <p class="muted">
                         <i class="bi bi-geo-alt"></i>
-                        <span th:text="${e.location}">Dhaka</span> •
+                        <span th:text="${e.location}"></span> •
                         <i class="bi bi-calendar"></i>
-                        <span th:text="${#temporals.format(e.startDateTime,'dd MMM yyyy')}">
-                            12 Nov 2024
-                        </span>
+                        <span th:text="${#temporals.format(e.startDateTime,'dd MMM yyyy')}"></span>
                     </p>
                 </div>
             </div>
@@ -268,36 +342,9 @@
     </section>
 
 
-    <!-- HEALTHCARE -->
-    <section class="container section">
-        <div class="section-header">
-            <h2>Pet Healthcare</h2>
-            <a th:href="@{/healthcare}" class="muted">Find centers →</a>
-        </div>
-
-        <div class="grid-3">
-            <div class="card">
-                <i class="bi bi-heart-pulse" style="font-size:1.7rem;color:var(--primary);"></i>
-                <h3>Routine Check-ups</h3>
-                <p class="muted">Vaccination, grooming, and wellness services from verified clinics.</p>
-            </div>
-
-            <div class="card">
-                <i class="bi bi-hospital" style="font-size:1.7rem;color:var(--primary);"></i>
-                <h3>Emergency Services</h3>
-                <p class="muted">Locate 24/7 veterinary hospitals for urgent care.</p>
-            </div>
-
-            <div class="card">
-                <i class="bi bi-geo-alt" style="font-size:1.7rem;color:var(--primary);"></i>
-                <h3>Trusted Centers</h3>
-                <p class="muted">All centers listed are reviewed and community-verified.</p>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- CONTACT -->
+    <!-- ===========================
+         CONTACT
+    ============================ -->
     <section class="container section">
         <div class="contact-card">
             <h2>Get in Touch</h2>
@@ -305,8 +352,7 @@
 
             <p>
                 <i class="bi bi-envelope"></i>
-                <a href="mailto:support@petport.com">support@petport.com</a>
-                <br>
+                <a href="mailto:support@petport.com">support@petport.com</a><br>
                 <i class="bi bi-geo-alt"></i>
                 Dhaka, Bangladesh
             </p>
@@ -315,10 +361,9 @@
 
 </main>
 
-
 <footer>
     <div class="container muted">
-        © <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}">2025</span>
+        © <span th:text="${#temporals.format(#temporals.createNow(),'yyyy')}"></span>
         PetPort — Made with ❤️ for pets & people.
     </div>
 </footer>
