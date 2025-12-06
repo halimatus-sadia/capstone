@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart | PetPort</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Your global stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        .page-section {
+            max-width: 1000px;
+            margin: 24px auto 40px;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color, #1f2937);
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 0.6rem 1.4rem;
+            border-radius: 999px;
+            text-decoration: none;
+            border: none;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #6b7280;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .cart-table th,
+        .cart-table td {
+            padding: 1rem;
+        }
+
+        .cart-table thead {
+            background: var(--primary-color, #2563eb);
+            color: #ffffff;
+        }
+
+        .cart-table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cart-product {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cart-product img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-product span {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .cart-remove {
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .cart-remove:hover {
+            text-decoration: underline;
+        }
+
+        .cart-footer {
+            text-align: right;
+            margin-top: 1.8rem;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Navbar fragment -->
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="page-section">
+    <h1 class="page-title">Your Shopping Cart</h1>
+
+    <!-- Empty cart -->
+    <div class="empty-state" th:if="${#lists.isEmpty(cartItems)}">
+        <p>Your cart is empty.</p>
+        <a th:href="@{/marketplace}" class="btn-primary">Continue Shopping</a>
+    </div>
+
+    <!-- Non-empty cart -->
+    <div th:if="${!#lists.isEmpty(cartItems)}">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th style="text-align: left;">Product</th>
+                <th style="text-align: right;">Price</th>
+                <th style="text-align: center;">Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="item : ${cartItems}">
+                <td>
+                    <div class="cart-product">
+                        <img th:src="${item.imageUrl}" alt="Product image">
+                        <span th:text="${item.name}">Product Name</span>
+                    </div>
+                </td>
+                <td style="text-align: right;"
+                    th:text="${'৳' + #numbers.formatDecimal(item.price, 0, 2)}">
+                    ৳0.00
+                </td>
+                <td style="text-align: center;">
+                    <a th:href="@{/cart/remove/{id}(id=${item.id})}"
+                       class="cart-remove">
+                        Remove
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+
+            <tfoot>
+            <tr style="font-weight: 600; background: #f9fafb;">
+                <td style="text-align: right;">Total:</td>
+                <td style="text-align: right;"
+                    th:text="${'৳' + #numbers.formatDecimal(total, 0, 2)}">
+                    ৳0.00
+                </td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div class="cart-footer">
+            <button type="button"
+                    class="btn-primary"
+                    onclick="alert('Checkout feature coming soon!')">
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

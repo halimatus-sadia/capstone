@@ -56,6 +56,30 @@
             color: #2563eb;
         }
 
+        /* Cart icon badge (optional future feature) */
+        .cart-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            min-width: 16px;
+            height: 16px;
+            font-size: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            font-weight: 600;
+        }
+
         /* ========== Notification Bell ========== */
         .actions {
             display: flex;
@@ -87,44 +111,6 @@
 
         #notif-toggle:hover {
             background-color: #f3f4f6;
-        }
-
-        .notif-bell .badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            min-width: 18px;
-            height: 18px;
-            line-height: 18px;
-            text-align: center;
-            font-size: 12px;
-            border-radius: 999px;
-            background: #ef4444;
-            color: #fff;
-            padding: 0 6px;
-            font-weight: 600;
-        }
-
-        .notif-bell .panel {
-            position: absolute;
-            top: 40px;
-            right: 0;
-            z-index: 50;
-            width: 300px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
-            padding: 8px;
-        }
-
-        .notif-bell .list .item {
-            padding: 8px 6px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .notif-bell .list .item.read {
-            opacity: 0.7;
         }
 
         /* ========== Hamburger (Mobile) ========== */
@@ -164,6 +150,7 @@
 <div th:fragment="navbar">
     <header class="site-header">
         <div class="header-inner">
+
             <!-- Brand -->
             <a href="/" class="brand">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -183,21 +170,33 @@
                 <a th:href="@{/healthcare-centers}">Healthcare Centers</a>
                 <a th:href="@{/events}">Events</a>
 
+                <!-- 🆕 Marketplace -->
+                <a href="/marketplace">Marketplace</a>
+
+                <!-- 🆕 Cart -->
+                <a href="/cart" class="cart-link">
+                    Cart 🛒
+                    <!-- Optional: cart badge count -->
+                    <!-- <span class="cart-badge" th:text="${cartCount}"></span> -->
+                </a>
+
                 <div th:if="${#authorization.expr('isAuthenticated()')}">
                     <a th:href="@{/profile}">My Profile</a>
                 </div>
+
                 <div th:if="${#authorization.expr('isAuthenticated()')}">
                     <a th:href="@{/logout}">Logout</a>
                 </div>
 
-                <!-- 🔔 Notification Bell -->
+                <!-- Notifications -->
                 <div class="actions" th:if="${#authorization.expr('isAuthenticated()')}">
                     <div th:replace="~{fragments/notifications :: bell(${currentUserId})}"></div>
                 </div>
             </nav>
 
-            <!-- Hamburger for mobile -->
-            <button class="hamburger" type="button" onclick="document.body.classList.toggle('nav-open')"
+            <!-- Hamburger (mobile) -->
+            <button class="hamburger" type="button"
+                    onclick="document.body.classList.toggle('nav-open')"
                     aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
             </button>

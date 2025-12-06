@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marketplace | PetPort</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Global styles -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        .page-section {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 20px 40px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color, #1f2937);
+        }
+
+        /* FORCE grid even if styles.css defines .product-grid differently */
+        .page-section .product-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .page-section .product-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-section .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Make sure cards fill grid cells, not fixed-width centered blocks */
+        .page-section .product-card {
+            width: 100% !important;
+            margin: 0 !important;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .product-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: #6b7280;
+            min-height: 40px;
+        }
+
+        .product-price {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .product-price span {
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .add-btn {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+<div th:replace="fragments/nav :: navbar"></div>
+
+<main class="page-section">
+    <h1 class="page-title">Marketplace</h1>
+
+    <div class="product-grid">
+        <div class="product-card" th:each="product : ${products}">
+            <img th:src="${product.imageUrl}"
+                 alt="Product Image"
+                 class="product-image">
+
+            <div class="product-info">
+                <h3 class="product-title" th:text="${product.name}">Product Name</h3>
+
+                <p class="product-desc" th:text="${product.description}">
+                    Description goes here.
+                </p>
+
+                <div class="product-price">
+                    <span th:text="${'৳' + #numbers.formatDecimal(product.price, 0, 2)}">
+                        ৳0.00
+                    </span>
+
+                    <a th:href="@{/cart/add/{id}(id=${product.id})}"
+                       class="add-btn">
+                        Add to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
